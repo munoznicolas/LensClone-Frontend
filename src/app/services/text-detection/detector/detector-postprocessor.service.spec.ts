@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { DetectorPostprocessorService } from './detector-postprocessor.service';
-import * as ort from 'onnxruntime-web';
+import type * as ort from 'onnxruntime-web';
 
 describe('DetectorPostprocessorService', () => {
   let service: DetectorPostprocessorService;

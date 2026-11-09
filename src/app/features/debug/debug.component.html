@@ -119,17 +119,17 @@
         </div>
       </section>
 
-      <!-- Memory Profile -->
+      <!-- JS Heap Memory -->
       <section class="panel memory">
         <div class="panel-header">
-          <h2>Memory Profile</h2>
-          @if (currentHeapMb() !== null) {
-            <span class="memory-badge">{{ currentHeapMb() | number: '1.1-1' }} MB</span>
+          <h2>Memory Telemetry</h2>
+          @if (currentHeapMb()) {
+            <span class="memory-badge">Active</span>
           }
         </div>
 
-        @if (currentHeapMb() !== null) {
-          <div class="metrics-list">
+        @if (currentHeapMb()) {
+          <div class="memory-metrics">
             <div class="metric-row">
               <div class="metric-info">
                 <span class="metric-name">Used Heap: </span>
@@ -137,7 +137,7 @@
               </div>
               <div class="progress-bar">
                 <div
-                  class="progress-fill memory-used-fill"
+                  class="progress-fill memory-fill"
                   [style.width.%]="limitHeapMb() ? (currentHeapMb()! / limitHeapMb()!) * 100 : 0"
                 ></div>
               </div>
@@ -229,6 +229,22 @@
             Line Grouping
             <span class="tab-badge">{{ pipeline.groupedLines().length }}</span>
           </button>
+
+          <button
+            class="tab-btn highlight-tab"
+            [class.active]="activeTab() === 'profiler'"
+            (click)="activeTab.set('profiler')"
+          >
+            ⚡ Profiler & Validation
+          </button>
+
+          <button
+            class="tab-btn"
+            [class.active]="activeTab() === 'microbench'"
+            (click)="activeTab.set('microbench')"
+          >
+            🔬 Micro-Benchmarks
+          </button>
         </nav>
 
         <div class="tab-content">
@@ -248,54 +264,77 @@
                   }
                 </div>
               } @else {
-                <div class="empty-state">No cropped regions detected in current frame</div>
+                <div class="empty-state">No text regions currently cropped</div>
               }
             </div>
           }
 
-          <!-- Tab 2: Recognized & Canonical Text -->
+          <!-- Tab 2: Recognized Text -->
           @if (activeTab() === 'text') {
-            <div class="panel text-inspection">
+            <div class="panel text">
               @if (pipeline.detections().length > 0) {
-                <table class="text-table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Raw OCR Text</th>
-                      <th>Canonical / Matched Text</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (detection of pipeline.detections(); track $index) {
-                      <tr>
-                        <td class="col-index">#{{ $index + 1 }}</td>
-                        <td class="col-raw">{{ detection.rawText || '—' }}</td>
-                        <td class="col-canonical">
-                          <span class="canonical-badge">{{ detection.canonicalText || '—' }}</span>
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
+                <div class="text-list">
+                  @for (detection of pipeline.detections(); track $index) {
+                    <div class="text-card">
+                      <div class="text-card-header">
+                        <span class="detection-index">#{{ $index + 1 }}</span>
+                        <div class="confidence-badges">
+                          @if (detection.boundingBoxScore !== undefined) {
+                            <span class="badge box-badge">Box: {{ (detection.boundingBoxScore * 100) | number: '1.0-0' }}%</span>
+                          }
+                          @if (detection.rawTextScore !== undefined) {
+                            <span class="badge ocr-badge">OCR: {{ (detection.rawTextScore * 100) | number: '1.0-0' }}%</span>
+                          }
+                          @if (detection.canonicalText) {
+                            <span class="badge dict-badge">Dict: Match</span>
+                          }
+                        </div>
+                      </div>
+
+                      <div class="text-fields">
+                        <div class="field-row">
+                          <span class="field-label">Raw OCR:</span>
+                          <span class="field-value raw">{{ detection.rawText || '—' }}</span>
+                        </div>
+                        <div class="field-row">
+                          <span class="field-label">Canonical:</span>
+                          <span class="field-value canonical">{{ detection.canonicalText || '—' }}</span>
+                        </div>
+                        @if (detection.price) {
+                          <div class="field-row">
+                            <span class="field-label">Price:</span>
+                            <span class="field-value price">{{ detection.price }}</span>
+                          </div>
+                        }
+                        @if (detection.quantity) {
+                          <div class="field-row">
+                            <span class="field-label">Quantity:</span>
+                            <span class="field-value quantity">{{ detection.quantity.quantity }} {{ detection.quantity.unit }}</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
               } @else {
-                <div class="empty-state">No text detected in current frame</div>
+                <div class="empty-state">No text currently recognized</div>
               }
             </div>
           }
 
           <!-- Tab 3: Line Grouping -->
           @if (activeTab() === 'grouping') {
-            <div class="panel line-grouping">
+            <div class="panel grouping">
               @if (pipeline.groupedLines().length > 0) {
-                <div class="grouping-grid">
+                <div class="grouping-list">
                   @for (group of pipeline.groupedLines(); track group.lineId) {
                     <div class="group-card">
-                      <div class="group-card-header">
-                        <div class="group-title-box">
-                          <span class="line-badge">Line #{{ group.lineId }}</span>
-                          <span class="items-count">{{ group.detections.length }} {{ group.detections.length === 1 ? 'item' : 'items' }}</span>
+                      <div class="group-header">
+                        <div class="group-title">
+                          <span class="line-badge">Line {{ group.lineId }}</span>
+                          <span class="count-badge">{{ group.detections.length }} tokens</span>
                         </div>
-                        <div class="group-meta-box">
+                        <div class="group-pills">
                           @if (group.coordinates) {
                             <span class="score-pill gps-pill" title="Approximate Location">📍 {{ group.coordinates.latitude | number: '1.2-2' }}, {{ group.coordinates.longitude | number: '1.2-2' }} (approx)</span>
                           }
@@ -331,9 +370,251 @@
               }
             </div>
           }
+
+          <!-- Tab 4: Profiler & Validation Studio -->
+          @if (activeTab() === 'profiler') {
+            <div class="panel profiler-studio">
+              <!-- Session Control Action Bar -->
+              <div class="profiler-toolbar">
+                <div class="toolbar-group">
+                  <label class="toolbar-label">
+                    Iterations:
+                    <select
+                      class="toolbar-select"
+                      [value]="profilingIterations()"
+                      (change)="profilingIterations.set(+$any($event.target).value)"
+                    >
+                      <option [value]="5">5 passes</option>
+                      <option [value]="10">10 passes</option>
+                      <option [value]="20">20 passes</option>
+                      <option [value]="50">50 passes (Deep)</option>
+                    </select>
+                  </label>
+                  <button
+                    class="studio-btn primary-btn"
+                    [disabled]="isProfiling()"
+                    (click)="runProfilingSession()"
+                  >
+                    @if (isProfiling()) {
+                      <span>⏳ Profiling...</span>
+                    } @else {
+                      <span>⚡ Run Profiling Session</span>
+                    }
+                  </button>
+                </div>
+
+                <div class="toolbar-group">
+                  @if (profileReport()) {
+                    <button class="studio-btn outline-btn" (click)="saveAsNewBaseline()">
+                      💾 Save as Baseline
+                    </button>
+                    <button class="studio-btn outline-btn" (click)="exportValidationReport()">
+                      📥 Export Report
+                    </button>
+                  }
+                </div>
+              </div>
+
+              @if (profilingStatus()) {
+                <div class="profiling-status-banner">
+                  <span class="pulse-icon">●</span> {{ profilingStatus() }}
+                </div>
+              }
+
+              <!-- Telemetry KPI Summary -->
+              @if (profileReport()) {
+                <div class="profiler-kpis">
+                  <div class="stat-box">
+                    <span class="stat-label">Average Latency</span>
+                    <span class="stat-value highlight">{{ profileReport()!.averagePipelineLatencyMs | number: '1.1-1' }} ms</span>
+                    <span class="stat-sub">{{ profileReport()!.fps | number: '1.1-1' }} FPS</span>
+                  </div>
+                  <div class="stat-box">
+                    <span class="stat-label">Bottleneck Stage</span>
+                    <span class="stat-value warning">{{ profileReport()!.bottleneckStage }}</span>
+                    <span class="stat-sub">{{ profileReport()!.stageMetrics[profileReport()!.bottleneckStage]?.meanMs | number: '1.1-1' }} ms avg</span>
+                  </div>
+                  <div class="stat-box">
+                    <span class="stat-label">Session Passes</span>
+                    <span class="stat-value">{{ profileReport()!.iterations }}</span>
+                    <span class="stat-sub">{{ profileReport()!.totalDurationMs | number: '1.0-0' }} ms elapsed</span>
+                  </div>
+                  <div class="stat-box">
+                    <span class="stat-label">Validation Verdict</span>
+                    @if (validationReport()?.overallPassed) {
+                      <span class="stat-value success">PASS ({{ validationReport()!.score }}/100)</span>
+                    } @else if (validationReport()) {
+                      <span class="stat-value error">FAIL ({{ validationReport()!.regressionsCount }} regr.)</span>
+                    } @else {
+                      <span class="stat-value">Ready</span>
+                    }
+                    <span class="stat-sub">Against golden baseline</span>
+                  </div>
+                </div>
+
+                <!-- Stage Latency Waterfall & Percentile Table -->
+                <div class="waterfall-section">
+                  <h3 class="section-title">Stage-by-Stage Latency Waterfall & Variance</h3>
+                  <div class="waterfall-table-wrapper">
+                    <table class="profiler-table">
+                      <thead>
+                        <tr>
+                          <th>Stage</th>
+                          <th>Mean</th>
+                          <th>Median (p50)</th>
+                          <th>p95</th>
+                          <th>Min / Max</th>
+                          <th>StdDev</th>
+                          <th>% Pipeline</th>
+                          <th>Throughput</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (stage of getStageKeys(profileReport()!.stageMetrics); track stage) {
+                          @let s = profileReport()!.stageMetrics[stage];
+                          <tr [class.bottleneck-row]="stage === profileReport()!.bottleneckStage">
+                            <td class="stage-name-cell">
+                              <span class="stage-dot" [class.bottleneck-dot]="stage === profileReport()!.bottleneckStage"></span>
+                              <strong>{{ stage }}</strong>
+                            </td>
+                            <td>{{ s.meanMs | number: '1.2-2' }} ms</td>
+                            <td>{{ s.medianMs | number: '1.2-2' }} ms</td>
+                            <td>{{ s.p95Ms | number: '1.2-2' }} ms</td>
+                            <td class="text-muted">{{ s.minMs | number: '1.1-1' }} / {{ s.maxMs | number: '1.1-1' }} ms</td>
+                            <td class="text-muted">±{{ s.stdDevMs | number: '1.2-2' }} ms</td>
+                            <td>
+                              <div class="waterfall-bar-container">
+                                <div class="waterfall-bar" [style.width.%]="s.percentageOfTotal"></div>
+                                <span class="waterfall-pct">{{ s.percentageOfTotal | number: '1.1-1' }}%</span>
+                              </div>
+                            </td>
+                            <td class="text-muted">{{ s.opsPerSec | number: '1.0-0' }} ops/s</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Regression Guardrails Comparison -->
+                @if (validationReport()) {
+                  <div class="validation-section">
+                    <h3 class="section-title">Change Validation & Regression Guardrails</h3>
+                    <div class="validation-table-wrapper">
+                      <table class="profiler-table">
+                        <thead>
+                          <tr>
+                            <th>Status</th>
+                            <th>Category</th>
+                            <th>Metric</th>
+                            <th>Baseline</th>
+                            <th>Current Run</th>
+                            <th>Delta</th>
+                            <th>Threshold / Budget</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (comp of validationReport()!.comparisons; track comp.metric) {
+                            <tr>
+                              <td>
+                                @if (comp.status === 'PASS') {
+                                  <span class="badge-status pass">PASS</span>
+                                } @else if (comp.status === 'IMPROVED') {
+                                  <span class="badge-status improved">IMPROVED</span>
+                                } @else if (comp.status === 'WARNING') {
+                                  <span class="badge-status warning">WARN</span>
+                                } @else {
+                                  <span class="badge-status fail">FAIL</span>
+                                }
+                              </td>
+                              <td class="text-muted">{{ comp.category }}</td>
+                              <td><strong>{{ comp.metric }}</strong></td>
+                              <td>{{ comp.baselineValue }}</td>
+                              <td>{{ comp.currentValue }}</td>
+                              <td>
+                                <span [class.text-success]="comp.status === 'IMPROVED'" [class.text-danger]="comp.status === 'FAIL'">
+                                  @if (comp.delta >= 0) { + }{{ comp.delta }}
+                                  @if (comp.deltaPct !== undefined) { ({{ comp.deltaPct }}%) }
+                                </span>
+                              </td>
+                              <td class="text-muted">{{ comp.description }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                }
+              } @else {
+                <div class="empty-state">
+                  <p>No profiling session run yet.</p>
+                  <button class="studio-btn primary-btn mt-2" (click)="runProfilingSession()">
+                    ⚡ Run Profiling Session Now
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Tab 5: Micro-Benchmarks Studio -->
+          @if (activeTab() === 'microbench') {
+            <div class="panel microbench-studio">
+              <div class="profiler-toolbar">
+                <span class="toolbar-title">Isolated Algorithm Micro-benchmarks</span>
+                <button
+                  class="studio-btn primary-btn"
+                  [disabled]="isRunningMicroBench()"
+                  (click)="runMicroBenchmarks()"
+                >
+                  @if (isRunningMicroBench()) {
+                    <span>🔬 Running Micro-benchmarks...</span>
+                  } @else {
+                    <span>▶ Run All Micro-benchmarks</span>
+                  }
+                </button>
+              </div>
+
+              @if (microBenchResults().length > 0) {
+                <div class="microbench-grid">
+                  @for (bench of microBenchResults(); track bench.id) {
+                    <div class="bench-card">
+                      <div class="bench-header">
+                        <span class="bench-category-badge">{{ bench.category }}</span>
+                        <h4 class="bench-title">{{ bench.name }}</h4>
+                      </div>
+                      <div class="bench-body">
+                        <div class="bench-stat-row">
+                          <span class="label">Mean Latency:</span>
+                          <span class="val highlight">{{ bench.stats.meanMs | number: '1.3-3' }} ms</span>
+                        </div>
+                        <div class="bench-stat-row">
+                          <span class="label">p95 Latency:</span>
+                          <span class="val">{{ bench.stats.p95Ms | number: '1.3-3' }} ms</span>
+                        </div>
+                        <div class="bench-stat-row">
+                          <span class="label">Throughput:</span>
+                          <span class="val success">{{ bench.throughputDescription }}</span>
+                        </div>
+                        <div class="bench-stat-row">
+                          <span class="label">Passes:</span>
+                          <span class="val">{{ bench.iterations }} passes</span>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="empty-state">
+                  <p>Micro-benchmarks evaluate individual algorithms (Weighted Levenshtein, Postprocessor, CTC Decoder, Line Grouping, Tensor Pool) in complete isolation.</p>
+                  <button class="studio-btn primary-btn mt-2" (click)="runMicroBenchmarks()">
+                    🔬 Run Micro-Benchmarks
+                  </button>
+                </div>
+              }
+            </div>
+          }
         </div>
       </section>
     </main>
   </div>
 </div>
-

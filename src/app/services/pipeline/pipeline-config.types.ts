@@ -4,6 +4,7 @@ export interface DetectorConfig {
   minAspectRatio: number;
   maxSide?: number;
   scaleFactor?: number;
+  intervalFrames?: number;
 }
 
 export interface CropperConfig {
@@ -59,6 +60,7 @@ export const DEFAULT_PIPELINE_CONFIG: PipelineConfig = {
     minAspectRatio: 1.4,
     maxSide: 0,
     scaleFactor: 0.5,
+    intervalFrames: 1,
   },
   cropper: {
     padding: 6,

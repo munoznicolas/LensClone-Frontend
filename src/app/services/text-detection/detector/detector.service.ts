@@ -11,6 +11,8 @@ import { PipelineStage, PipelineState } from '../../pipeline/pipeline-state';
 export class DetectorService implements PipelineStage {
   readonly name = 'detector';
   private session!: ort.InferenceSession;
+  private frameCount = 0;
+  private previousDetections: Detection[] = [];
 
   constructor(
     private readonly preprocessor: DetectorPreprocessorService,
@@ -37,6 +39,19 @@ export class DetectorService implements PipelineStage {
   }
 
   async execute(state: PipelineState): Promise<void> {
+    const interval = Math.max(1, state.config?.detector?.intervalFrames ?? 1);
+    this.frameCount++;
+
+    // When interleaved skipping is active (interval > 1) and we have previous detections,
+    // skip the heavy DBNet forward pass and reuse previous detections as tracked candidates.
+    if (interval > 1 && this.frameCount % interval !== 1 && this.previousDetections.length > 0) {
+      state.detections = this.previousDetections.map((det) => ({
+        ...det,
+        isReused: true,
+      }));
+      return;
+    }
+
     // Preprocess the image with optional aspect-bounding downscaling or scale factor
     const tensor = this.preprocessor.toTensor(
       state.fullImage!,
@@ -55,7 +70,13 @@ export class DetectorService implements PipelineStage {
       state.config?.detector,
     );
     // Update the state with the new detections
+    this.previousDetections = detections;
     state.detections = detections;
+  }
+
+  reset(): void {
+    this.frameCount = 0;
+    this.previousDetections = [];
   }
 
   private async pullModel(modelUrl: string): Promise<ArrayBuffer> {

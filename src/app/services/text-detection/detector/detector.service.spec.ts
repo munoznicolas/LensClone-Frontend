@@ -10,7 +10,7 @@ vi.mock('onnxruntime-web', () => {
     data,
     dims,
   }));
-  const envMock = { wasm: {} };
+  const envMock = { wasm: { numThreads: 4, proxy: false, logLevel: 'error', wasmPaths: '/assets/ort/' } };
 
   return {
     __esModule: true,
@@ -121,10 +121,10 @@ describe('DetectorService', () => {
       }),
     );
 
-    const mockOutputTensor = {} as ort.Tensor;
+    const mockOutput = { out: { dims: [1, 1, 10, 10], data: new Float32Array(100) } };
     const mockSession = {
       outputNames: ['out'],
-      run: vi.fn().mockResolvedValue({ out: mockOutputTensor }),
+      run: vi.fn().mockResolvedValue(mockOutput),
     };
     (ort.InferenceSession.create as any).mockResolvedValue(mockSession);
 
@@ -141,8 +141,14 @@ describe('DetectorService', () => {
 
     expect(preprocessorMock.toTensor).toHaveBeenCalledWith(mockImage, undefined, undefined);
     expect(mockSession.run).toHaveBeenCalled();
-    expect(postprocessorMock.process).toHaveBeenCalledWith(mockOutputTensor, 10, 10, undefined);
+    expect(postprocessorMock.process).toHaveBeenCalledWith(
+      mockOutput.out,
+      10,
+      10,
+      undefined,
+    );
     expect(state.detections.length).toBe(1);
+    expect(state.detections[0].boundingBoxScore).toBe(0.95);
 
     vi.unstubAllGlobals();
   });
@@ -158,10 +164,9 @@ describe('DetectorService', () => {
       }),
     );
 
-    const mockOutputTensor = {} as ort.Tensor;
     const mockSession = {
       outputNames: ['out'],
-      run: vi.fn().mockResolvedValue({ out: mockOutputTensor }),
+      run: vi.fn().mockResolvedValue({ out: {} }),
     };
     (ort.InferenceSession.create as any).mockResolvedValue(mockSession);
 
@@ -174,18 +179,94 @@ describe('DetectorService', () => {
       processingTimeMs: 0,
       config: {
         detector: {
-          thresholdValue: 0.3,
-          minArea: 10,
-          minAspectRatio: 1.2,
+          thresholdValue: 0.25,
+          minArea: 15,
+          minAspectRatio: 1.5,
           maxSide: 480,
-          scaleFactor: 0.5,
+          scaleFactor: 0.75,
         },
-      } as any,
+        cropper: { padding: 4, paddingMode: 'fixed' },
+        recognizer: { targetHeight: 48 },
+        lineGrouping: {
+          maxScore: 1.0,
+          weights: { vertical: 0.6, height: 0.25, horizontal: 0.1, confidence: 0.05 },
+          limits: { maxVertical: 1.0, maxHeightRatio: 2.0 },
+        },
+        dictionary: { similarityThreshold: 0.7, priceMin: 1000, priceMax: 9999 },
+        tracking: { enabled: true, iouThreshold: 0.3, maxMisses: 3, smoothingFactor: 0.6, refreshIntervalFrames: 30 },
+      },
     };
 
     await service.execute(state);
 
-    expect(preprocessorMock.toTensor).toHaveBeenCalledWith(mockImage, 480, 0.5);
+    expect(preprocessorMock.toTensor).toHaveBeenCalledWith(mockImage, 480, 0.75);
+
+    vi.unstubAllGlobals();
+  });
+
+  it('should skip DBNet model run on interleaved frames when intervalFrames > 1 and reuse previous detections', async () => {
+    const dummyBuffer = new ArrayBuffer(2000);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/octet-stream' }),
+        arrayBuffer: vi.fn().mockResolvedValue(dummyBuffer),
+      }),
+    );
+
+    const mockOutput = { out: { dims: [1, 1, 10, 10], data: new Float32Array(100) } };
+    const mockSession = {
+      outputNames: ['out'],
+      run: vi.fn().mockResolvedValue(mockOutput),
+    };
+    (ort.InferenceSession.create as any).mockResolvedValue(mockSession);
+
+    await service.initialize?.();
+
+    const mockImage = new ImageData(new Uint8ClampedArray(400), 10, 10);
+    const config = {
+      detector: {
+        thresholdValue: 0.2,
+        minArea: 10,
+        minAspectRatio: 1.4,
+        intervalFrames: 3,
+      },
+      cropper: { padding: 6, paddingMode: 'fixed' as const },
+      recognizer: { targetHeight: 48 },
+      lineGrouping: {
+        maxScore: 0.8,
+        weights: { vertical: 0.3, height: 0.25, horizontal: 0.1, confidence: 0.05 },
+        limits: { maxVertical: 1.0, maxHeightRatio: 2.0 },
+      },
+      dictionary: { similarityThreshold: 0.65, priceMin: 1000, priceMax: 9999 },
+      tracking: { enabled: true, iouThreshold: 0.3, maxMisses: 3, smoothingFactor: 0.6, refreshIntervalFrames: 30 },
+    };
+
+    // Frame 1: Runs DBNet
+    const state1: PipelineState = { fullImage: mockImage, detections: [], processingTimeMs: 0, config };
+    await service.execute(state1);
+    expect(mockSession.run).toHaveBeenCalledTimes(1);
+    expect(state1.detections.length).toBe(1);
+
+    // Frame 2: Skips DBNet, reuses detections with isReused: true
+    const state2: PipelineState = { fullImage: mockImage, detections: [], processingTimeMs: 0, config };
+    await service.execute(state2);
+    expect(mockSession.run).toHaveBeenCalledTimes(1); // Still 1!
+    expect(state2.detections.length).toBe(1);
+    expect(state2.detections[0].isReused).toBe(true);
+
+    // Frame 3: Skips DBNet, reuses detections
+    const state3: PipelineState = { fullImage: mockImage, detections: [], processingTimeMs: 0, config };
+    await service.execute(state3);
+    expect(mockSession.run).toHaveBeenCalledTimes(1); // Still 1!
+    expect(state3.detections.length).toBe(1);
+    expect(state3.detections[0].isReused).toBe(true);
+
+    // Frame 4: intervalFrames=3 -> runs DBNet again!
+    const state4: PipelineState = { fullImage: mockImage, detections: [], processingTimeMs: 0, config };
+    await service.execute(state4);
+    expect(mockSession.run).toHaveBeenCalledTimes(2);
 
     vi.unstubAllGlobals();
   });

@@ -6,9 +6,12 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "ng test --isolate=true",
     "test:benchmark": "ng test --include=**/grocery-benchmark.local.spec.ts",
-    "benchmark:parallel": "node scripts/run-parallel-benchmark.js"
+    "benchmark:parallel": "node scripts/run-parallel-benchmark.js",
+    "profile": "node scripts/run-profiling-suite.js",
+    "profile:validate": "node scripts/run-profiling-suite.js --validate",
+    "profile:baseline": "node scripts/run-profiling-suite.js --save-baseline"
   },
   "private": true,
   "packageManager": "npm@11.17.0",

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { RecognitionPostprocessorService } from './recognition-postprocessor.service';
-import * as ort from 'onnxruntime-web';
+import type * as ort from 'onnxruntime-web';
 
 describe('RecognitionPostprocessorService', () => {
   let service: RecognitionPostprocessorService;
@@ -46,5 +46,36 @@ describe('RecognitionPostprocessorService', () => {
     const decoded = service.decode(mockTensor, dictionary, 0);
 
     expect(decoded).toBe('ABC');
+  });
+
+  it('should decode batched CTC sequence output across multiple batch items', () => {
+    const dictionary = ['A', 'B', 'C'];
+    const batchSize = 2;
+    const sequenceLength = 3;
+    const classCount = 4;
+
+    const data = new Float32Array(batchSize * sequenceLength * classCount);
+
+    // Batch item 0: A -> B -> Blank => "AB"
+    data[0 * classCount + 1] = 2.0;
+    data[1 * classCount + 2] = 2.0;
+    data[2 * classCount + 0] = 2.0;
+
+    // Batch item 1: C -> Blank -> A => "CA"
+    const offset1 = sequenceLength * classCount;
+    data[offset1 + 0 * classCount + 3] = 2.0;
+    data[offset1 + 1 * classCount + 0] = 2.0;
+    data[offset1 + 2 * classCount + 1] = 2.0;
+
+    const mockBatchTensor = {
+      dims: [batchSize, sequenceLength, classCount],
+      data: data,
+    } as unknown as ort.Tensor;
+
+    const results = service.decodeBatchWithScore(mockBatchTensor, dictionary, 0);
+
+    expect(results.length).toBe(2);
+    expect(results[0].text).toBe('AB');
+    expect(results[1].text).toBe('CA');
   });
 });

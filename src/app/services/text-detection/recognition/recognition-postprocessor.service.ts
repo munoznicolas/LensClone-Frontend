@@ -75,4 +75,31 @@ export class RecognitionPostprocessorService {
       score: Number(avgScore.toFixed(3)),
     };
   }
+
+  /**
+   * Decodes a batched output tensor of shape [batchSize, sequenceLength, classCount]
+   * by slicing the contiguous buffer for each batch item with zero copies.
+   */
+  decodeBatchWithScore(
+    output: ort.Tensor,
+    dictionary: string[],
+    blankIndex = 0,
+  ): RecognitionResult[] {
+    const data = output.data as Float32Array;
+    const [batchSize, sequenceLength, classCount] = output.dims;
+    const results: RecognitionResult[] = [];
+    const sliceLength = sequenceLength * classCount;
+
+    for (let b = 0; b < batchSize; b++) {
+      const sliceData = data.subarray(b * sliceLength, (b + 1) * sliceLength);
+      const sliceTensor = {
+        data: sliceData,
+        dims: [1, sequenceLength, classCount],
+      } as unknown as ort.Tensor;
+
+      results.push(this.decodeWithScore(sliceTensor, dictionary, blankIndex));
+    }
+
+    return results;
+  }
 }

@@ -3,12 +3,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DebugComponent } from './debug.component';
 import { PipelineService } from '../../services/pipeline/pipeline.service';
 import { CameraService } from '../../services/camera/camera.service';
+import { AlgorithmProfilerService } from '../../services/pipeline/profiling/algorithm-profiler.service';
+import { AlgorithmMicroBenchmarksService } from '../../services/pipeline/profiling/algorithm-micro-benchmarks.service';
+import { PipelineValidationService } from '../../services/pipeline/validation/pipeline-validation.service';
+import { BaselineManagerService } from '../../services/pipeline/validation/baseline-manager.service';
 import { computed, signal } from '@angular/core';
 
 describe('DebugComponent', () => {
   let component: DebugComponent;
   let fixture: ComponentFixture<DebugComponent>;
   let pipelineServiceMock: any;
+  let profilerMock: any;
+  let microbenchMock: any;
+  let validatorMock: any;
+  let baselineManagerMock: any;
 
   beforeEach(async () => {
     const mockContext = {
@@ -55,11 +63,90 @@ describe('DebugComponent', () => {
       start: vi.fn().mockResolvedValue(undefined),
     };
 
+    profilerMock = {
+      profilePipeline: vi.fn().mockResolvedValue({
+        timestamp: new Date().toISOString(),
+        iterations: 5,
+        warmupIterations: 2,
+        totalDurationMs: 250,
+        averagePipelineLatencyMs: 40.0,
+        fps: 25.0,
+        stageMetrics: {
+          detector: {
+            count: 5,
+            minMs: 15,
+            maxMs: 20,
+            meanMs: 17.5,
+            medianMs: 17,
+            p90Ms: 19,
+            p95Ms: 20,
+            p99Ms: 20,
+            stdDevMs: 1.5,
+            opsPerSec: 57,
+            totalMs: 87.5,
+            percentageOfTotal: 43.8,
+          },
+        },
+        bottleneckStage: 'detector',
+        memory: {
+          initialHeapMb: 50,
+          finalHeapMb: 51,
+          peakHeapMb: 52,
+          deltaHeapMb: 1,
+        },
+        iterationSamples: [],
+      }),
+    };
+
+    microbenchMock = {
+      runAllBenchmarks: vi.fn().mockResolvedValue([
+        {
+          id: 'weighted-levenshtein',
+          name: 'Weighted Levenshtein Similarity',
+          category: 'nlp',
+          iterations: 30,
+          stats: { meanMs: 0.05, p95Ms: 0.1, opsPerSec: 20000 },
+          memoryDeltaMb: 0,
+          throughputDescription: '20000 ops/sec',
+        },
+      ]),
+    };
+
+    validatorMock = {
+      validate: vi.fn().mockReturnValue({
+        timestamp: new Date().toISOString(),
+        overallPassed: true,
+        hasWarnings: false,
+        score: 100,
+        comparisons: [],
+        regressionsCount: 0,
+        improvementsCount: 1,
+        summaryMarkdown: 'PASS',
+      }),
+    };
+
+    baselineManagerMock = {
+      getBaseline: vi.fn().mockResolvedValue({
+        version: '1.0.0',
+        metrics: {
+          detection: { f1Score: 0.9, averageIoU: 0.8 },
+          recognition: { exactMatchRatio: 0.85, characterErrorRate: 0.07 },
+          performance: { averagePipelineLatencyMs: 45.0, fps: 22.0 },
+        },
+      }),
+      createBaselineFromReports: vi.fn().mockReturnValue({}),
+      saveBaseline: vi.fn(),
+    };
+
     await TestBed.configureTestingModule({
       imports: [DebugComponent],
       providers: [
         { provide: PipelineService, useValue: pipelineServiceMock },
         { provide: CameraService, useValue: cameraServiceMock },
+        { provide: AlgorithmProfilerService, useValue: profilerMock },
+        { provide: AlgorithmMicroBenchmarksService, useValue: microbenchMock },
+        { provide: PipelineValidationService, useValue: validatorMock },
+        { provide: BaselineManagerService, useValue: baselineManagerMock },
       ],
     }).compileComponents();
 
@@ -128,5 +215,26 @@ describe('DebugComponent', () => {
 
     vi.unstubAllGlobals();
   });
-});
 
+  it('should run profiling session and update profiling signals', async () => {
+    component.activeTab.set('profiler');
+    await component.runProfilingSession();
+    fixture.detectChanges();
+
+    expect(profilerMock.profilePipeline).toHaveBeenCalled();
+    expect(component.profileReport()).not.toBeNull();
+    expect(component.profileReport()?.bottleneckStage).toBe('detector');
+    expect(validatorMock.validate).toHaveBeenCalled();
+    expect(component.validationReport()?.overallPassed).toBe(true);
+  });
+
+  it('should run micro-benchmarks and populate micro-bench results', async () => {
+    component.activeTab.set('microbench');
+    await component.runMicroBenchmarks();
+    fixture.detectChanges();
+
+    expect(microbenchMock.runAllBenchmarks).toHaveBeenCalled();
+    expect(component.microBenchResults().length).toBe(1);
+    expect(component.microBenchResults()[0].id).toBe('weighted-levenshtein');
+  });
+});

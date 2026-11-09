@@ -11,15 +11,21 @@ vi.mock('onnxruntime-web', () => {
       this.dims = dims;
     }
   }
+  const createMock = vi.fn().mockResolvedValue({
+    outputNames: ['out'],
+    run: vi.fn().mockResolvedValue({ out: {} }),
+  });
   const envMock = { wasm: {} };
 
   return {
     __esModule: true,
     default: {
       env: envMock,
+      InferenceSession: { create: createMock },
       Tensor: TensorMock,
     },
     env: envMock,
+    InferenceSession: { create: createMock },
     Tensor: TensorMock,
   };
 });
@@ -36,29 +42,6 @@ if (typeof globalThis.ImageData === 'undefined') {
       this.data = data;
       this.width = width;
       this.height = height;
-    }
-  };
-}
-
-if (typeof globalThis.OffscreenCanvas === 'undefined') {
-  const mockContext = {
-    putImageData: vi.fn(),
-    clearRect: vi.fn(),
-    drawImage: vi.fn(),
-    getImageData: vi.fn().mockImplementation((x: number, y: number, w: number, h: number) => {
-      return new ImageData(new Uint8ClampedArray(w * h * 4), w, h);
-    }),
-  };
-
-  (globalThis as any).OffscreenCanvas = class OffscreenCanvas {
-    width: number;
-    height: number;
-    constructor(width: number, height: number) {
-      this.width = width;
-      this.height = height;
-    }
-    getContext() {
-      return mockContext;
     }
   };
 }
@@ -93,5 +76,21 @@ describe('RecognitionPreprocessorService', () => {
     expect(tensor.dims[0]).toBe(1);
     expect(tensor.dims[1]).toBe(3);
     expect(tensor.dims[2]).toBe(32);
+  });
+
+  it('should convert multiple input ImageData objects into a batched tensor [B, 3, inputHeight, maxWidth]', () => {
+    service.initialize(32);
+
+    const img1 = new ImageData(new Uint8ClampedArray(40 * 20 * 4), 40, 20);
+    const img2 = new ImageData(new Uint8ClampedArray(60 * 30 * 4), 60, 30);
+
+    const { tensor, widths } = service.toBatchTensor([img1, img2]);
+
+    expect(tensor).toBeDefined();
+    expect(tensor.dims[0]).toBe(2);
+    expect(tensor.dims[1]).toBe(3);
+    expect(tensor.dims[2]).toBe(32);
+    expect(tensor.dims[3]).toBe(Math.max(...widths));
+    expect(widths.length).toBe(2);
   });
 });

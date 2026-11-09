@@ -1,0 +1,37 @@
+{
+  "version": "1.0.0",
+  "createdAt": "2026-11-09T00:00:00.000Z",
+  "description": "Golden reference baseline for LensClone OCR pipeline evaluated against Grocery Benchmark fixtures.",
+  "environment": "WASM / WebWorker / Float32 Pool",
+  "metrics": {
+    "detection": {
+      "precision": 0.90,
+      "recall": 0.88,
+      "f1Score": 0.89,
+      "averageIoU": 0.78
+    },
+    "recognition": {
+      "exactMatchRatio": 0.82,
+      "characterErrorRate": 0.08,
+      "wordErrorRate": 0.12
+    },
+    "performance": {
+      "averagePipelineLatencyMs": 45.0,
+      "fps": 22.2,
+      "stageTimingsMs": {
+        "detector": 18.0,
+        "detectorFilter": 0.5,
+        "tracker": 1.2,
+        "cropper": 3.5,
+        "recognizer": 15.0,
+        "dictionaryMatcher": 2.8,
+        "lineGrouping": 2.0,
+        "offerExtractor": 2.0
+      }
+    },
+    "memory": {
+      "peakHeapMb": 42.0,
+      "bufferPoolHitRate": 0.95
+    }
+  }
+}

@@ -260,10 +260,18 @@ export class TrackerService implements PipelineStage {
       const prevScore = prevDet.rawTextScore ?? 0;
       const currentScore = track.rawTextScore ?? 0;
 
+      const hasAnyField = Boolean(
+        prevDet.rawText ||
+        prevDet.canonicalText ||
+        prevDet.price ||
+        prevDet.quantity,
+      );
+
       const shouldUpdateRecognition =
-        !track.rawText ||
-        prevScore >= currentScore ||
-        currentScore < 0.85;
+        hasAnyField &&
+        (!track.rawText ||
+          prevScore >= currentScore ||
+          currentScore < 0.85);
 
       if (shouldUpdateRecognition) {
         if (prevDet.rawText !== undefined) track.rawText = prevDet.rawText;

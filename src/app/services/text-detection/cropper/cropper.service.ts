@@ -9,25 +9,13 @@ import { DEFAULT_PIPELINE_CONFIG, CropperConfig } from '../../pipeline/pipeline-
 export class DetectorCropperService implements PipelineStage {
   readonly name = 'cropper';
 
-  private canvas?: HTMLCanvasElement | OffscreenCanvas;
-  private context?: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null;
-
   execute(state: PipelineState): void {
-    if (state.detections.length === 0) {
+    if (state.detections.length === 0 || !state.fullImage) {
       return;
     }
 
     const cropperConfig = state.config?.cropper ?? DEFAULT_PIPELINE_CONFIG.cropper;
-    const width = state.fullImage!.width;
-    const height = state.fullImage!.height;
-
-    this.ensureCanvas(width, height);
-
-    if (!this.context) {
-      throw new Error('Unable to create canvas context');
-    }
-
-    this.context.putImageData(state.fullImage!, 0, 0);
+    const fullImage = state.fullImage;
 
     state.detections = state.detections.map((detection) => {
       if (detection.isReused && !detection.needsRefresh) {
@@ -35,38 +23,12 @@ export class DetectorCropperService implements PipelineStage {
       }
       return {
         ...detection,
-        crop: this.cropRegion(detection, cropperConfig),
+        crop: this.cropRegion(detection, fullImage, cropperConfig),
       };
     });
   }
 
-  private ensureCanvas(width: number, height: number): void {
-    if (!this.canvas) {
-      this.canvas =
-        typeof OffscreenCanvas !== 'undefined'
-          ? new OffscreenCanvas(width, height)
-          : (() => {
-              const c = document.createElement('canvas');
-              c.width = width;
-              c.height = height;
-              return c;
-            })();
-      this.context = (this.canvas.getContext('2d', {
-        willReadFrequently: true,
-      }) || {
-        putImageData: () => {},
-        getImageData: (x: number, y: number, w: number, h: number) =>
-          typeof ImageData !== 'undefined'
-            ? new ImageData(w, h)
-            : ({ width: w, height: h, data: new Uint8ClampedArray(w * h * 4) } as unknown as ImageData),
-      }) as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null;
-    } else if (this.canvas.width !== width || this.canvas.height !== height) {
-      this.canvas.width = width;
-      this.canvas.height = height;
-    }
-  }
-
-  private cropRegion(detection: Detection, config: CropperConfig): ImageData {
+  private cropRegion(detection: Detection, fullImage: ImageData, config: CropperConfig): ImageData {
     const box = detection.boundingBox;
     let padX = 0;
     let padY = 0;
@@ -79,19 +41,36 @@ export class DetectorCropperService implements PipelineStage {
       padY = Math.max(0, config.padding);
     }
 
-    const canvasWidth = this.canvas!.width;
-    const canvasHeight = this.canvas!.height;
+    const imageWidth = fullImage.width;
+    const imageHeight = fullImage.height;
 
     const x = Math.max(0, Math.floor(box.x - padX));
     const y = Math.max(0, Math.floor(box.y - padY));
 
-    const right = Math.min(canvasWidth, Math.ceil(box.x + box.width + padX));
-    const bottom = Math.min(canvasHeight, Math.ceil(box.y + box.height + padY));
+    const right = Math.min(imageWidth, Math.ceil(box.x + box.width + padX));
+    const bottom = Math.min(imageHeight, Math.ceil(box.y + box.height + padY));
 
-    const width = Math.max(1, right - x);
-    const height = Math.max(1, bottom - y);
+    const cropWidth = Math.max(1, right - x);
+    const cropHeight = Math.max(1, bottom - y);
 
-    return this.context!.getImageData(x, y, width, height);
+    const cropData = new Uint8ClampedArray(cropWidth * cropHeight * 4);
+    const srcData = fullImage.data;
+    const rowByteLength = cropWidth * 4;
+
+    for (let row = 0; row < cropHeight; row++) {
+      const srcOffset = ((y + row) * imageWidth + x) * 4;
+      const dstOffset = row * rowByteLength;
+      cropData.set(srcData.subarray(srcOffset, srcOffset + rowByteLength), dstOffset);
+    }
+
+    if (typeof ImageData !== 'undefined') {
+      return new ImageData(cropData, cropWidth, cropHeight);
+    }
+    return {
+      width: cropWidth,
+      height: cropHeight,
+      data: cropData,
+      colorSpace: 'srgb',
+    } as unknown as ImageData;
   }
 }
-

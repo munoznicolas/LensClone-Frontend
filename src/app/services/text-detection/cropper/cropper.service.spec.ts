@@ -4,16 +4,22 @@ import { DetectorCropperService } from './cropper.service';
 import { PipelineState } from '../../pipeline/pipeline-state';
 import { DEFAULT_PIPELINE_CONFIG } from '../../pipeline/pipeline-config.types';
 
+if (typeof globalThis.ImageData === 'undefined') {
+  (globalThis as any).ImageData = class ImageData {
+    data: Uint8ClampedArray;
+    width: number;
+    height: number;
+    colorSpace: PredefinedColorSpace = 'srgb';
+    constructor(data: Uint8ClampedArray, width: number, height: number) {
+      this.data = data;
+      this.width = width;
+      this.height = height;
+    }
+  };
+}
+
 function createTestImageData(width: number, height: number): ImageData {
-  if (typeof ImageData !== 'undefined') {
-    return new ImageData(new Uint8ClampedArray(width * height * 4), width, height);
-  }
-  return {
-    width,
-    height,
-    data: new Uint8ClampedArray(width * height * 4),
-    colorSpace: 'srgb',
-  } as unknown as ImageData;
+  return new ImageData(new Uint8ClampedArray(width * height * 4), width, height);
 }
 
 describe('DetectorCropperService', () => {
@@ -88,5 +94,44 @@ describe('DetectorCropperService', () => {
     // width = 40 + 4 + 4 = 48, height = 20 + 4 + 4 = 28
     expect(state.detections[0].crop?.width).toBe(48);
     expect(state.detections[0].crop?.height).toBe(28);
+  });
+
+  it('should accurately copy raw RGBA pixel data directly from fullImage without canvas dependencies', () => {
+    const fullImage = createTestImageData(10, 10);
+    // Fill specific pixel at (2, 3) with [255, 128, 64, 255]
+    const idx = (3 * 10 + 2) * 4;
+    fullImage.data[idx] = 255;
+    fullImage.data[idx + 1] = 128;
+    fullImage.data[idx + 2] = 64;
+    fullImage.data[idx + 3] = 255;
+
+    const state: PipelineState = {
+      fullImage,
+      detections: [
+        {
+          boundingBoxScore: 0.95,
+          boundingBox: { x: 2, y: 3, width: 4, height: 4 },
+        },
+      ],
+      processingTimeMs: 0,
+      config: {
+        ...DEFAULT_PIPELINE_CONFIG,
+        cropper: {
+          padding: 0,
+          paddingMode: 'fixed',
+        },
+      },
+    };
+
+    service.execute(state);
+
+    const crop = state.detections[0].crop!;
+    expect(crop.width).toBe(4);
+    expect(crop.height).toBe(4);
+    // First pixel of crop (0,0) corresponds to (2,3) of fullImage
+    expect(crop.data[0]).toBe(255);
+    expect(crop.data[1]).toBe(128);
+    expect(crop.data[2]).toBe(64);
+    expect(crop.data[3]).toBe(255);
   });
 });

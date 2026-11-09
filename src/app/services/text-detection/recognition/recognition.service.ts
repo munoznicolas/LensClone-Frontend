@@ -42,23 +42,60 @@ export class RecognitionService implements PipelineStage {
   }
 
   async execute(state: PipelineState): Promise<void> {
-    for (const detection of state.detections) {
-      if (detection.isReused && detection.rawText && !detection.needsRefresh) {
-        continue;
+    const pendingDetections = state.detections.filter(
+      (d) => (!d.isReused || !d.rawText || d.needsRefresh) && !!d.crop,
+    );
+
+    if (pendingDetections.length === 0) {
+      return;
+    }
+
+    const BATCH_SIZE = 6;
+
+    for (let i = 0; i < pendingDetections.length; i += BATCH_SIZE) {
+      const batch = pendingDetections.slice(i, i + BATCH_SIZE);
+      const crops = batch.map((d) => d.crop!);
+
+      try {
+        if (crops.length === 1) {
+          const output = await this.session.run({
+            x: this.preprocessor.toTensor(crops[0]),
+          });
+          const maps = output[this.session.outputNames[0]] as ort.Tensor;
+          const res = this.postprocessor.decodeWithScore(maps, this.dictionary, 836);
+          batch[0].rawText = res.text;
+          batch[0].rawTextScore = res.score;
+        } else {
+          const { tensor } = this.preprocessor.toBatchTensor(crops);
+          const output = await this.session.run({ x: tensor });
+          const maps = output[this.session.outputNames[0]] as ort.Tensor;
+          const results = this.postprocessor.decodeBatchWithScore(
+            maps,
+            this.dictionary,
+            836,
+          );
+
+          for (let j = 0; j < batch.length; j++) {
+            batch[j].rawText = results[j]?.text || '';
+            batch[j].rawTextScore = results[j]?.score || 0;
+          }
+        }
+      } catch (err) {
+        console.warn(
+          'Batch recognition execution failed, falling back to sequential execution:',
+          err,
+        );
+        for (const detection of batch) {
+          if (!detection.crop) continue;
+          const output = await this.session.run({
+            x: this.preprocessor.toTensor(detection.crop),
+          });
+          const maps = output[this.session.outputNames[0]] as ort.Tensor;
+          const res = this.postprocessor.decodeWithScore(maps, this.dictionary, 836);
+          detection.rawText = res.text;
+          detection.rawTextScore = res.score;
+        }
       }
-
-      if (!detection.crop) {
-        continue;
-      }
-
-      const output = await this.session.run({
-        x: this.preprocessor.toTensor(detection.crop),
-      });
-
-      const maps = output[this.session.outputNames[0]] as ort.Tensor;
-      const res = this.postprocessor.decodeWithScore(maps, this.dictionary, 836);
-      detection.rawText = res.text;
-      detection.rawTextScore = res.score;
     }
   }
 

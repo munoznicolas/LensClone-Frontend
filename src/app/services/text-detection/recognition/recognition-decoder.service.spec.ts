@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { RecognitionDecoderService } from './recognition-decoder.service';
-import * as ort from 'onnxruntime-web';
+import type * as ort from 'onnxruntime-web';
 
 describe('RecognitionDecoderService', () => {
   let service: RecognitionDecoderService;
