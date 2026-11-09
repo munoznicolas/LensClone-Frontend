@@ -174,6 +174,16 @@
         </div>
 
         @if (pipelineService.offers().length > 0) {
+          @if (!authService.isAuthenticated()) {
+            <div class="guest-contribute-banner" (click)="openModal('account')" role="button" tabindex="0">
+              <span class="material-symbols-rounded banner-icon">info</span>
+              <div class="banner-text">
+                <strong>Viewing as Guest</strong>
+                <span>Price comparisons are live. Sign in with Google to contribute and save new prices.</span>
+              </div>
+              <button type="button" class="banner-action-btn">Sign In</button>
+            </div>
+          }
           <div class="offers-grid">
             @for (offer of pipelineService.offers(); track offer.id) {
               <div class="m3-result-card">
@@ -193,6 +203,19 @@
                     <span>GPS Tracked ({{ offer.coordinates.latitude.toFixed(2) }}, {{ offer.coordinates.longitude.toFixed(2) }})</span>
                   </div>
                 }
+                <div class="card-footer-status">
+                  @if (authService.isAuthenticated()) {
+                    <span class="status-chip sync" title="Contributed to database with your Google account">
+                      <span class="material-symbols-rounded">cloud_done</span>
+                      <span>Contributed</span>
+                    </span>
+                  } @else {
+                    <span class="status-chip guest" title="Sign in with Google to contribute this price to the database">
+                      <span class="material-symbols-rounded">lock</span>
+                      <span>Guest (Comparison only)</span>
+                    </span>
+                  }
+                </div>
               </div>
             }
           </div>
@@ -297,7 +320,7 @@
 
             <div class="account-status-badge signed-in">
               <span class="material-symbols-rounded">check_circle</span>
-              <span>Signed in with Google</span>
+              <span>Signed in with Google (Price submissions enabled)</span>
             </div>
 
             <p class="account-desc">
@@ -306,8 +329,8 @@
           } @else {
             <div class="anonymous-banner">
               <span class="material-symbols-rounded anon-icon">no_accounts</span>
-              <h3>Using Lens Anonymously</h3>
-              <p>Sign in to sync search history and access account preferences.</p>
+              <h3>Using Lens as Guest</h3>
+              <p>Guests can explore and compare live prices. Sign in with Google to contribute new prices to the system.</p>
             </div>
 
             <button type="button" class="google-btn" (click)="signInGoogle()">

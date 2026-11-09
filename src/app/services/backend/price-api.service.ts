@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, of, tap, firstValueFrom } from 'rxjs';
+import { Observable, catchError, of, firstValueFrom } from 'rxjs';
 import { SettingsService } from '../settings/settings.service';
 import { GpsCoordinates, ProductOffer } from '../text-detection/types';
 import { IndexedDbService } from '../storage/indexed-db.service';
+import { AuthService } from '../auth/auth.service';
 
 export enum PriceRating {
   NewSubmission = 0,
@@ -45,11 +46,15 @@ export class PriceApiService {
   private readonly http = inject(HttpClient);
   private readonly settings = inject(SettingsService);
   private readonly idb = inject(IndexedDbService);
+  private readonly auth = inject(AuthService);
 
   constructor() {
     this.registerOnlineListener();
   }
 
+  /**
+   * Price comparison lookup. Available to all users, including guest/unauthenticated sessions.
+   */
   comparePrice(productName: string, price: number, coords?: GpsCoordinates): Observable<PriceComparisonResponse | null> {
     if (!productName || !price || !coords) {
       return of(null);
@@ -71,7 +76,15 @@ export class PriceApiService {
     );
   }
 
+  /**
+   * Submit observed product price. Restricted to authenticated users signed in with Google.
+   * Guests/unauthenticated users cannot submit new data.
+   */
   submitPrice(offer: ProductOffer, coords?: GpsCoordinates): Observable<PriceSubmissionResponse | null> {
+    if (!this.auth.isAuthenticated()) {
+      return of(null);
+    }
+
     if (!offer.product || !offer.price || !coords) {
       return of(null);
     }
@@ -82,6 +95,7 @@ export class PriceApiService {
     }
 
     const url = `${this.settings.backendApiUrl()}/submit`;
+    const user = this.auth.currentUser();
     const payload = {
       productName: offer.product,
       quantityOrUnit: offer.quantity ? `${offer.quantity.quantity} ${offer.quantity.unit}` : undefined,
@@ -89,7 +103,7 @@ export class PriceApiService {
       currency: 'ARS',
       latitude: coords.latitude,
       longitude: coords.longitude,
-      deviceId: this.getOrCreateDeviceId(),
+      deviceId: user ? `usr_${user.id}` : this.getOrCreateDeviceId(),
     };
 
     return this.http.post<PriceSubmissionResponse>(url, payload).pipe(

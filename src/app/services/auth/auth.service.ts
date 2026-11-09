@@ -5,6 +5,7 @@ export interface UserProfile {
   name: string;
   email: string;
   avatarUrl?: string;
+  idToken?: string;
 }
 
 const AUTH_STORAGE_KEY = 'lens_clone_auth_v1';
@@ -28,6 +29,41 @@ export class AuthService {
     };
     this._currentUser.set(user);
     this.saveToStorage(user);
+  }
+
+  handleGoogleCredential(credentialToken: string): void {
+    try {
+      const parts = credentialToken.split('.');
+      if (parts.length < 2) return;
+      const base64Url = parts[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join(''),
+      );
+      const payload = JSON.parse(jsonPayload) as {
+        sub?: string;
+        name?: string;
+        given_name?: string;
+        email?: string;
+        picture?: string;
+      };
+
+      const user: UserProfile = {
+        id: payload.sub || `google_${Date.now()}`,
+        name: payload.name || payload.given_name || 'Google User',
+        email: payload.email || '',
+        avatarUrl: payload.picture,
+        idToken: credentialToken,
+      };
+
+      this._currentUser.set(user);
+      this.saveToStorage(user);
+    } catch (e) {
+      console.warn('Failed to parse Google credential token:', e);
+    }
   }
 
   signOut(): void {

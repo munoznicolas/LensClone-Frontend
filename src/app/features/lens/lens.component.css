@@ -1245,3 +1245,84 @@ app-overlay {
   border-radius: 12px;
   font-weight: 500;
 }
+
+/* Guest contribution banner & card status */
+.guest-contribute-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(66, 133, 244, 0.12);
+  border: 1px solid rgba(66, 133, 244, 0.3);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.guest-contribute-banner:hover {
+  background: rgba(66, 133, 244, 0.18);
+}
+
+.guest-contribute-banner .banner-icon {
+  color: #8ab4f8;
+  font-size: 20px;
+}
+
+.guest-contribute-banner .banner-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+}
+
+.guest-contribute-banner .banner-text strong {
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.guest-contribute-banner .banner-action-btn {
+  background: #1a73e8;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.card-footer-status {
+  display: flex;
+  align-items: center;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-chip .material-symbols-rounded {
+  font-size: 13px;
+}
+
+.status-chip.sync {
+  color: #81c995;
+  background: rgba(52, 168, 83, 0.12);
+}
+
+.status-chip.guest {
+  color: #9aa0a6;
+  background: rgba(255, 255, 255, 0.06);
+}

@@ -5,7 +5,10 @@ import { CameraService } from '../../services/camera/camera.service';
 import { PipelineService } from '../../services/pipeline/pipeline.service';
 import { HistoryService } from '../../services/history/history.service';
 import { AuthService } from '../../services/auth/auth.service';
+import { PriceApiService } from '../../services/backend/price-api.service';
+import { GpsCoordinates, ProductOffer } from '../../services/text-detection/types';
 import { computed, signal } from '@angular/core';
+import { of } from 'rxjs';
 
 if (typeof globalThis.ImageData === 'undefined') {
   (globalThis as any).ImageData = class ImageData {
@@ -27,6 +30,15 @@ describe('LensComponent', () => {
   let pipelineServiceMock: any;
   let historyServiceMock: any;
   let authServiceMock: any;
+  let priceApiServiceMock: any;
+  let stateSignal: any;
+  let userSignal: any;
+
+  const mockCoordinates: GpsCoordinates = {
+    latitude: -34.5,
+    longitude: -58.4,
+    isApproximate: false,
+  };
 
   beforeEach(async () => {
     vi.stubGlobal('requestAnimationFrame', vi.fn());
@@ -44,7 +56,12 @@ describe('LensComponent', () => {
       resume: vi.fn().mockResolvedValue(undefined),
     };
 
-    const stateSignal = signal({ fullImage: undefined, detections: [], processingTimeMs: 0 } as any);
+    stateSignal = signal({
+      fullImage: undefined,
+      detections: [],
+      processingTimeMs: 0,
+      coordinates: mockCoordinates,
+    } as any);
 
     pipelineServiceMock = {
       initialize: vi.fn().mockResolvedValue(undefined),
@@ -69,7 +86,7 @@ describe('LensComponent', () => {
       clearHistory: vi.fn(),
     };
 
-    const userSignal = signal<any>(null);
+    userSignal = signal<any>(null);
     authServiceMock = {
       currentUser: userSignal,
       isAuthenticated: computed(() => userSignal() !== null),
@@ -79,6 +96,11 @@ describe('LensComponent', () => {
       signOut: vi.fn().mockImplementation(() => {
         userSignal.set(null);
       }),
+    };
+
+    priceApiServiceMock = {
+      comparePrice: vi.fn().mockReturnValue(of({ rating: 1, averagePrice: 1500 })),
+      submitPrice: vi.fn().mockReturnValue(of({ success: true, submissionId: 's1' })),
     };
 
     const mockContext = {
@@ -100,6 +122,7 @@ describe('LensComponent', () => {
         { provide: PipelineService, useValue: pipelineServiceMock },
         { provide: HistoryService, useValue: historyServiceMock },
         { provide: AuthService, useValue: authServiceMock },
+        { provide: PriceApiService, useValue: priceApiServiceMock },
       ],
     }).compileComponents();
 
@@ -152,5 +175,55 @@ describe('LensComponent', () => {
 
     component.closeModal();
     expect(component.activeModal()).toBe('none');
+  });
+
+  it('should compare prices but NOT submit when user is guest (unauthenticated)', () => {
+    const testOffer: ProductOffer = {
+      id: 'off-1',
+      product: 'LECHE 1L',
+      price: '$1200',
+      quantity: { quantity: 1, unit: 'kg' },
+      boundingBox: { x: 0, y: 0, width: 100, height: 50 },
+      confidence: 0.99,
+      detections: [],
+    };
+    stateSignal.set({
+      fullImage: undefined,
+      detections: [],
+      offers: [testOffer],
+      processingTimeMs: 10,
+      coordinates: mockCoordinates,
+    });
+
+    (component as any).processCompleteOffersBackend();
+
+    expect(priceApiServiceMock.comparePrice).toHaveBeenCalledWith('LECHE 1L', 1200, mockCoordinates);
+    expect(priceApiServiceMock.submitPrice).not.toHaveBeenCalled();
+  });
+
+  it('should compare prices AND submit when user is authenticated with Google', () => {
+    userSignal.set({ id: 'google_u1', name: 'Google User', email: 'user@gmail.com' });
+
+    const testOffer: ProductOffer = {
+      id: 'off-2',
+      product: 'YERBA MATE',
+      price: '$2400',
+      quantity: { quantity: 1, unit: 'kg' },
+      boundingBox: { x: 0, y: 0, width: 100, height: 50 },
+      confidence: 0.99,
+      detections: [],
+    };
+    stateSignal.set({
+      fullImage: undefined,
+      detections: [],
+      offers: [testOffer],
+      processingTimeMs: 10,
+      coordinates: mockCoordinates,
+    });
+
+    (component as any).processCompleteOffersBackend();
+
+    expect(priceApiServiceMock.comparePrice).toHaveBeenCalledWith('YERBA MATE', 2400, mockCoordinates);
+    expect(priceApiServiceMock.submitPrice).toHaveBeenCalledWith(testOffer, mockCoordinates);
   });
 });

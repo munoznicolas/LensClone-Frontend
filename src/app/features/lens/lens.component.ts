@@ -82,7 +82,7 @@ export class LensComponent implements AfterViewInit, OnDestroy {
     readonly historyService: HistoryService,
     readonly authService: AuthService,
     readonly deviceService: DeviceService,
-  ) { }
+  ) {}
 
   async ngAfterViewInit(): Promise<void> {
     this.isDestroyed = false;
@@ -262,15 +262,19 @@ export class LensComponent implements AfterViewInit, OnDestroy {
           });
 
           // Generate unique product offer fingerprint (product + unit + price + rounded lat/lng)
-          const latKey = coords.latitude.toFixed(3);
-          const lngKey = coords.longitude.toFixed(3);
-          const qtyKey = offer.quantity ? `${offer.quantity.quantity}_${offer.quantity.unit}` : 'none';
-          const fingerprint = `${offer.product.toUpperCase().trim()}_${qtyKey}_${rawPriceNum}_${latKey}_${lngKey}`;
+          if (this.authService.isAuthenticated()) {
+            const latKey = coords.latitude.toFixed(3);
+            const lngKey = coords.longitude.toFixed(3);
+            const qtyKey = offer.quantity
+              ? `${offer.quantity.quantity}_${offer.quantity.unit}`
+              : 'none';
+            const fingerprint = `${offer.product.toUpperCase().trim()}_${qtyKey}_${rawPriceNum}_${latKey}_${lngKey}`;
 
-          const lastSubmitted = this.submittedFingerprints.get(fingerprint);
-          if (!lastSubmitted || now - lastSubmitted >= this.SUBMISSION_COOLDOWN_MS) {
-            this.submittedFingerprints.set(fingerprint, now);
-            this.priceApiService.submitPrice(offer, coords).subscribe();
+            const lastSubmitted = this.submittedFingerprints.get(fingerprint);
+            if (!lastSubmitted || now - lastSubmitted >= this.SUBMISSION_COOLDOWN_MS) {
+              this.submittedFingerprints.set(fingerprint, now);
+              this.priceApiService.submitPrice(offer, coords).subscribe();
+            }
           }
         }
       }
