@@ -27,7 +27,8 @@
               {
                 "glob": "**/*",
                 "input": "node_modules/onnxruntime-web/dist",
-                "output": "assets/ort/"
+                "output": "assets/ort/",
+                "ignore": ["ort-wasm-simd-threaded.jsep.*"]
               }
             ],
             "styles": ["src/styles.css"],

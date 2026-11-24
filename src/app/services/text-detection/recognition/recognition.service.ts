@@ -31,7 +31,8 @@ export class RecognitionService implements PipelineStage {
 
     const buffer = await this.pullModel('/models/latin_PP-OCRv5_mobile_rec.onnx');
     this.session = await ort.InferenceSession.create(buffer, {
-      executionProviders: ['webgpu', 'wasm'],
+      // shortcut: WASM-only because ort-wasm-simd-threaded.jsep.wasm (25.6 MiB) exceeds Cloudflare's 25 MiB cap; re-add 'webgpu' when serving ORT assets from CDN or a host without that limit
+      executionProviders: ['wasm'],
       graphOptimizationLevel: 'all',
       logSeverityLevel: 3,
     });
