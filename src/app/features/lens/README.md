@@ -15,3 +15,4 @@ The `Lens` feature manages the main live camera viewport, captures video frame i
   - `PipelineService`: Receives captured `ImageData` frames for processing.
   - `HistoryService`: Saves snapshot captures with detection counts and text snippets.
   - `AuthService`: Displays user profile state and authentication actions.
+  - `I18nService`: Localizes UI labels, action chip toasts, Google Translate target language, TTS voice language, and capture timestamps.

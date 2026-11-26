@@ -1,5 +1,6 @@
-import { Injectable, OnDestroy, signal } from '@angular/core';
+import { Injectable, OnDestroy, inject, signal } from '@angular/core';
 import { GpsCoordinates } from '../text-detection/types';
+import { I18nService } from '../i18n/i18n.service';
 
 export type LocationAccuracyMode = 'precise' | 'approximate';
 
@@ -9,6 +10,7 @@ const STORAGE_KEY_ACCURACY_MODE = 'lensclone_location_accuracy_mode';
   providedIn: 'root',
 })
 export class LocationService implements OnDestroy {
+  private readonly i18n = inject(I18nService);
   private watchId?: number;
 
   private readonly _coordinates = signal<GpsCoordinates | null>(null);
@@ -61,7 +63,7 @@ export class LocationService implements OnDestroy {
 
   startTracking(options?: PositionOptions): void {
     if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
-      this._error.set('Geolocation is not supported in this environment.');
+      this._error.set(this.i18n.t('location.error.unsupported'));
       return;
     }
 
@@ -88,7 +90,7 @@ export class LocationService implements OnDestroy {
       );
     } catch (err: any) {
       this._isTracking.set(false);
-      this._error.set(err?.message || 'Failed to start geolocation tracking.');
+      this._error.set(err?.message || this.i18n.t('location.error.startFailed'));
     }
   }
 
@@ -146,17 +148,17 @@ export class LocationService implements OnDestroy {
   }
 
   private handleError(error: GeolocationPositionError): void {
-    let msg = 'Geolocation error occurred.';
+    let msg = this.i18n.t('location.error.generic');
     switch (error.code) {
       case error.PERMISSION_DENIED:
-        msg = 'Location permission denied.';
+        msg = this.i18n.t('location.error.permissionDenied');
         this._permissionStatus.set('denied');
         break;
       case error.POSITION_UNAVAILABLE:
-        msg = 'Location position unavailable.';
+        msg = this.i18n.t('location.error.unavailable');
         break;
       case error.TIMEOUT:
-        msg = 'Location request timed out.';
+        msg = this.i18n.t('location.error.timeout');
         break;
     }
     this._error.set(msg);

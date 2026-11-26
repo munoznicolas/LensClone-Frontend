@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { SettingsService } from '../settings/settings.service';
+import { I18nService } from '../i18n/i18n.service';
 
 declare const __GOOGLE_CLIENT_ID__: string | undefined;
 
@@ -45,6 +46,7 @@ const OAUTH_STATE_STORAGE_KEY = 'lens_clone_google_oauth_state';
 export class AuthService {
   private readonly http = inject(HttpClient, { optional: true });
   private readonly settings = inject(SettingsService, { optional: true });
+  private readonly i18n = inject(I18nService, { optional: true });
 
   private readonly _currentUser = signal<UserProfile | null>(null);
   private readonly _isAdmin = signal<boolean>(false);
@@ -70,7 +72,9 @@ export class AuthService {
   // shortcut: Google OIDC implicit id_token flow expires in 1h with no silent refresh; upgrade to backend OAuth code exchange if longer sessions are needed
   signInWithGoogle(navigate?: (url: string) => void, clientId: string = GOOGLE_CLIENT_ID): void {
     if (!clientId || clientId.startsWith('YOUR_GOOGLE_CLIENT_ID')) {
-      this._authError.set('Google OAuth Client ID is not configured.');
+      this._authError.set(
+        this.i18n?.t('auth.error.missingClientId') ?? 'Google OAuth Client ID is not configured.',
+      );
       return;
     }
 
@@ -143,18 +147,27 @@ export class AuthService {
     }
 
     if (oauthError) {
-      this._authError.set(`Google sign-in failed: ${oauthError}`);
+      this._authError.set(
+        this.i18n?.t('auth.error.oauthFailed', { error: oauthError }) ??
+          `Google sign-in failed: ${oauthError}`,
+      );
       return;
     }
 
     const returnedState = params.get('state');
     if (!expectedState || !returnedState || returnedState !== expectedState) {
-      this._authError.set('Google sign-in state mismatch. Please try again.');
+      this._authError.set(
+        this.i18n?.t('auth.error.stateMismatch') ??
+          'Google sign-in state mismatch. Please try again.',
+      );
       return;
     }
 
     if (!expectedNonce) {
-      this._authError.set('Google sign-in nonce missing. Please try again.');
+      this._authError.set(
+        this.i18n?.t('auth.error.nonceMissing') ??
+          'Google sign-in nonce missing. Please try again.',
+      );
       return;
     }
 
@@ -165,7 +178,9 @@ export class AuthService {
     try {
       const parts = credentialToken.split('.');
       if (parts.length < 2 || !parts[1]) {
-        this._authError.set('Invalid Google credential token.');
+        this._authError.set(
+          this.i18n?.t('auth.error.invalidToken') ?? 'Invalid Google credential token.',
+        );
         return false;
       }
 
@@ -180,18 +195,25 @@ export class AuthService {
       const payload = JSON.parse(jsonPayload) as GoogleJwtPayload;
 
       if (this.isExpired(payload.exp)) {
-        this._authError.set('Google credential token is expired or missing exp.');
+        this._authError.set(
+          this.i18n?.t('auth.error.expiredToken') ??
+            'Google credential token is expired or missing exp.',
+        );
         return false;
       }
 
       if (expectedNonce !== undefined && payload.nonce !== expectedNonce) {
-        this._authError.set('Google sign-in nonce mismatch. Please try again.');
+        this._authError.set(
+          this.i18n?.t('auth.error.nonceMismatch') ??
+            'Google sign-in nonce mismatch. Please try again.',
+        );
         return false;
       }
 
       const user: UserProfile = {
         id: payload.sub || `google_${Date.now()}`,
-        name: payload.name || payload.given_name || 'Google User',
+        name:
+          payload.name || payload.given_name || this.i18n?.t('auth.defaultUserName') || 'Google User',
         email: payload.email || '',
         avatarUrl: payload.picture,
         idToken: credentialToken,
@@ -206,7 +228,9 @@ export class AuthService {
       return true;
     } catch (e) {
       console.warn('Failed to parse Google credential token:', e);
-      this._authError.set('Failed to parse Google credential token.');
+      this._authError.set(
+        this.i18n?.t('auth.error.parseFailed') ?? 'Failed to parse Google credential token.',
+      );
       return false;
     }
   }

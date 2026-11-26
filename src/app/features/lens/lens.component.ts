@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  inject,
   OnDestroy,
   signal,
   ViewChild,
@@ -13,6 +14,7 @@ import { PipelineService } from '../../services/pipeline/pipeline.service';
 import { HistoryService, HistoryItem } from '../../services/history/history.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { DeviceService } from '../../services/device/device.service';
+import { I18nService } from '../../services/i18n/i18n.service';
 import { OverlayComponent } from '../overlay/overlay.component';
 import { SettingsComponent } from '../settings/settings.component';
 import { ShoppingListComponent } from '../shopping-list/shopping-list.component';
@@ -50,6 +52,7 @@ export class LensComponent implements AfterViewInit, OnDestroy {
 
   readonly activeModal = signal<ModalType>('none');
   readonly selectedHistoryItem = signal<HistoryItem | null>(null);
+  readonly i18n = inject(I18nService);
 
   readonly sheetSnap = signal<'collapsed' | 'peek' | 'half' | 'full'>('peek');
   readonly actionNotification = signal<string | null>(null);
@@ -170,25 +173,27 @@ export class LensComponent implements AfterViewInit, OnDestroy {
     if (action === 'copy') {
       if (textSnippet && navigator.clipboard) {
         navigator.clipboard.writeText(textSnippet);
-        this.showNotification('Text copied to clipboard');
+        this.showNotification(this.i18n.t('lens.toast.copied'));
       } else {
-        this.showNotification('No text detected to copy');
+        this.showNotification(this.i18n.t('lens.toast.noText'));
       }
     } else if (action === 'translate') {
       const query = encodeURIComponent(textSnippet || '');
-      window.open(`https://translate.google.com/?sl=auto&tl=en&text=${query}`, '_blank');
-      this.showNotification('Opening Google Translate');
+      const targetLang = this.i18n.activeLocale() === 'es-AR' ? 'es' : 'en';
+      window.open(`https://translate.google.com/?sl=auto&tl=${targetLang}&text=${query}`, '_blank');
+      this.showNotification(this.i18n.t('lens.toast.openingTranslate'));
     } else if (action === 'search_web') {
-      const query = encodeURIComponent(textSnippet || 'Lens search');
+      const query = encodeURIComponent(textSnippet || this.i18n.t('lens.searchWeb.defaultQuery'));
       window.open(`https://www.google.com/search?q=${query}`, '_blank');
     } else if (action === 'listen') {
       if (textSnippet && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(textSnippet);
+        utterance.lang = this.i18n.activeLocale();
         window.speechSynthesis.speak(utterance);
-        this.showNotification('Reading text aloud');
+        this.showNotification(this.i18n.t('lens.toast.readingAloud'));
       } else {
-        this.showNotification('Text-to-speech unavailable');
+        this.showNotification(this.i18n.t('lens.toast.ttsUnavailable'));
       }
     }
   }

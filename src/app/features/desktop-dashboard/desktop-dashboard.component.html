@@ -6,81 +6,98 @@
         <span class="material-symbols-rounded brand-icon">center_focus_strong</span>
       </div>
       <div class="brand-text">
-        <h1>Google Lens <span class="badge">Workspace</span></h1>
-        <p class="subtitle">Price Analytics & Regional Vision Pipeline</p>
+        <h1>Google Lens <span class="badge">{{ i18n.t('dashboard.badge') }}</span></h1>
+        <p class="subtitle">{{ i18n.t('dashboard.subtitle') }}</p>
       </div>
     </div>
 
     <!-- M3 Navigation Segmented Pills -->
     <nav class="nav-tabs">
-      <button 
-        type="button" 
-        class="nav-tab" 
+      <button
+        type="button"
+        class="nav-tab"
         [class.active]="activeTab() === 'management'"
-        (click)="setTab('management')">
+        (click)="setTab('management')"
+      >
         <span class="material-symbols-rounded">analytics</span>
-        <span>Analytics & Heatmap</span>
+        <span>{{ i18n.t('dashboard.tab.management') }}</span>
       </button>
 
-      <button 
-        type="button" 
-        class="nav-tab" 
+      <button
+        type="button"
+        class="nav-tab"
         [class.active]="activeTab() === 'shoppingList'"
-        (click)="setTab('shoppingList')">
+        (click)="setTab('shoppingList')"
+      >
         <span class="material-symbols-rounded">shopping_bag</span>
-        <span>Shopping Budget</span>
+        <span>{{ i18n.t('dashboard.tab.shoppingList') }}</span>
       </button>
 
       @if (authService.isAdmin()) {
-        <button 
-          type="button" 
-          class="nav-tab" 
+        <button
+          type="button"
+          class="nav-tab"
           [class.active]="activeTab() === 'debug'"
-          (click)="setTab('debug')">
+          (click)="setTab('debug')"
+        >
           <span class="material-symbols-rounded">bug_report</span>
-          <span>Diagnostics</span>
+          <span>{{ i18n.t('dashboard.tab.diagnostics') }}</span>
         </button>
       }
 
-      <button 
-        type="button" 
-        class="nav-tab" 
+      <button
+        type="button"
+        class="nav-tab"
         [class.active]="activeTab() === 'settings'"
-        (click)="setTab('settings')">
+        (click)="setTab('settings')"
+      >
         <span class="material-symbols-rounded">settings</span>
-        <span>Preferences</span>
+        <span>{{ i18n.t('dashboard.tab.settings') }}</span>
       </button>
     </nav>
 
     <!-- Header Right Action Tools & Profile Avatar -->
     <div class="header-actions">
-      <button 
-        type="button" 
-        class="location-badge-btn" 
+      <button
+        type="button"
+        class="location-badge-btn"
         [class.precise]="locationService.accuracyMode() === 'precise'"
         (click)="openLocationModal()"
-        title="Configure GPS Location Accuracy Mode">
+        [attr.title]="i18n.t('dashboard.gps.title')"
+      >
         <span class="material-symbols-rounded">
           {{ locationService.accuracyMode() === 'precise' ? 'target' : 'location_city' }}
         </span>
-        <span>GPS: {{ locationService.accuracyMode() === 'precise' ? 'Precise' : 'Approximate' }}</span>
+        <span>
+          {{
+            locationService.accuracyMode() === 'precise'
+              ? i18n.t('dashboard.gps.precise')
+              : i18n.t('dashboard.gps.approximate')
+          }}
+        </span>
       </button>
 
-      <button 
-        type="button" 
-        class="sim-btn" 
-        title="Switch to Mobile Camera Viewport"
-        (click)="deviceService.setForcedMode('mobile')">
+      <button
+        type="button"
+        class="sim-btn"
+        [attr.title]="i18n.t('dashboard.mobileFeedTitle')"
+        (click)="deviceService.setForcedMode('mobile')"
+      >
         <span class="material-symbols-rounded">smartphone</span>
-        <span>Mobile Feed</span>
+        <span>{{ i18n.t('dashboard.mobileFeed') }}</span>
       </button>
 
       @if (authService.isAuthenticated()) {
-        <button 
-          type="button" 
-          class="desktop-profile-btn" 
+        <button
+          type="button"
+          class="desktop-profile-btn"
           (click)="authService.signOut()"
-          [title]="'Signed in as ' + (authService.currentUser()?.name || 'Google User') + '. Click to sign out'">
+          [attr.title]="
+            i18n.t('dashboard.profileTitle', {
+              name: authService.currentUser()?.name || i18n.t('auth.defaultUserName'),
+            })
+          "
+        >
           <div class="google-avatar-ring">
             @if (authService.currentUser()?.avatarUrl; as avatar) {
               <img [src]="avatar" [alt]="authService.currentUser()?.name" class="avatar-img" />
@@ -92,18 +109,31 @@
           <span class="material-symbols-rounded logout-icon">logout</span>
         </button>
       } @else {
-        <button 
-          type="button" 
-          class="desktop-google-login-btn" 
+        <button
+          type="button"
+          class="desktop-google-login-btn"
           (click)="authService.signInWithGoogle()"
-          title="Sign in with Google to contribute prices">
+          [attr.title]="i18n.t('dashboard.signInTitle')"
+        >
           <svg class="google-icon" viewBox="0 0 24 24" width="16" height="16">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            <path
+              fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+            />
           </svg>
-          <span>Sign In</span>
+          <span>{{ i18n.t('dashboard.signIn') }}</span>
         </button>
       }
     </div>
@@ -121,37 +151,37 @@
           <div class="card metric-card">
             <div class="metric-header">
               <span class="material-symbols-rounded metric-icon blue">analytics</span>
-              <span class="metric-title">Scanned Products</span>
+              <span class="metric-title">{{ i18n.t('dashboard.metrics.scannedTitle') }}</span>
             </div>
-            <div class="metric-value">1,482</div>
-            <div class="metric-sub text-positive">+12% vs last week</div>
+            <div class="metric-value">{{ i18n.formatNumber(1482, 0) }}</div>
+            <div class="metric-sub text-positive">{{ i18n.t('dashboard.metrics.scannedSub') }}</div>
           </div>
 
           <div class="card metric-card">
             <div class="metric-header">
               <span class="material-symbols-rounded metric-icon green">check_circle</span>
-              <span class="metric-title">Price Confidence</span>
+              <span class="metric-title">{{ i18n.t('dashboard.metrics.confidenceTitle') }}</span>
             </div>
-            <div class="metric-value">94.8%</div>
-            <div class="metric-sub">Across 8 monitored categories</div>
+            <div class="metric-value">{{ i18n.formatNumber(94.8, 1) }}%</div>
+            <div class="metric-sub">{{ i18n.t('dashboard.metrics.confidenceSub') }}</div>
           </div>
 
           <div class="card metric-card">
             <div class="metric-header">
               <span class="material-symbols-rounded metric-icon purple">speed</span>
-              <span class="metric-title">Avg Latency</span>
+              <span class="metric-title">{{ i18n.t('dashboard.metrics.latencyTitle') }}</span>
             </div>
             <div class="metric-value">42 ms</div>
-            <div class="metric-sub">ONNX WASM execution time</div>
+            <div class="metric-sub">{{ i18n.t('dashboard.metrics.latencySub') }}</div>
           </div>
 
           <div class="card metric-card">
             <div class="metric-header">
               <span class="material-symbols-rounded metric-icon amber">store</span>
-              <span class="metric-title">Monitored Stores</span>
+              <span class="metric-title">{{ i18n.t('dashboard.metrics.storesTitle') }}</span>
             </div>
             <div class="metric-value">6</div>
-            <div class="metric-sub">Geolocated GPS locations</div>
+            <div class="metric-sub">{{ i18n.t('dashboard.metrics.storesSub') }}</div>
           </div>
         </section>
 
@@ -189,7 +219,8 @@
   @if (showLocationModal()) {
     <app-location-permission-modal
       (permissionGranted)="closeLocationModal()"
-      (permissionDenied)="closeLocationModal()">
+      (permissionDenied)="closeLocationModal()"
+    >
     </app-location-permission-modal>
   }
 </div>

@@ -1,6 +1,7 @@
-import { Component, ElementRef, effect, input, viewChild } from '@angular/core';
+import { Component, ElementRef, effect, inject, input, viewChild } from '@angular/core';
 import { PipelineService } from '../../services/pipeline/pipeline.service';
 import { BoundingBoxRendererService } from '../../services/visualization/boundingbox-renderer.service';
+import { I18nService } from '../../services/i18n/i18n.service';
 
 @Component({
   selector: 'app-overlay',
@@ -13,12 +14,14 @@ export class OverlayComponent {
   readonly height = input.required<number>();
 
   private readonly canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('overlay');
+  private readonly i18n = inject(I18nService);
 
   constructor(
     private readonly pipeline: PipelineService,
     private readonly renderer: BoundingBoxRendererService,
   ) {
     effect(() => {
+      this.i18n.activeLocale();
       const width = this.width();
       const height = this.height();
 

@@ -9,6 +9,7 @@ import { DeviceService } from '../../services/device/device.service';
 import { LocationService } from '../../services/location/location.service';
 
 import { AuthService } from '../../services/auth/auth.service';
+import { I18nService } from '../../services/i18n/i18n.service';
 
 export type DesktopTab = 'management' | 'shoppingList' | 'debug' | 'settings';
 
@@ -32,6 +33,7 @@ export class DesktopDashboardComponent {
 
   readonly locationService = inject(LocationService);
   readonly authService = inject(AuthService);
+  readonly i18n = inject(I18nService);
 
   // Sample analytics data for PC management view
   readonly recentUploads = signal([

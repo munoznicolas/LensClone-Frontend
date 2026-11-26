@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LocationService, LocationAccuracyMode } from '../../services/location/location.service';
+import { I18nService } from '../../services/i18n/i18n.service';
 
 @Component({
   selector: 'app-location-permission-modal',
@@ -11,6 +12,7 @@ import { LocationService, LocationAccuracyMode } from '../../services/location/l
 })
 export class LocationPermissionModalComponent {
   readonly locationService = inject(LocationService);
+  readonly i18n = inject(I18nService);
 
   selectedMode: LocationAccuracyMode = this.locationService.accuracyMode();
 

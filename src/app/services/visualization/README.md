@@ -11,4 +11,4 @@ The `BoundingBoxRendererService` handles high-performance 2D canvas drawing oper
 - `renderLineGroupings(ctx: CanvasRenderingContext2D, groupedLines: GroupedTextLine[])`: Renders cyan dashed box outlines around combined line groupings with line ID badges.
 
 ## Usage Context
-Used by overlay canvas components (`OverlayComponent`) and debug diagnostic views (`DebugComponent`) to render real-time computer vision bounding boxes.
+Used by overlay canvas components (`OverlayComponent`) and debug diagnostic views (`DebugComponent`) to render real-time computer vision bounding boxes. Price rating badges and line grouping labels are localized via `I18nService`.

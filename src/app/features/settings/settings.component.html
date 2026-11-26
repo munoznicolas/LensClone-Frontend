@@ -1,36 +1,58 @@
 @if (inline) {
   <div class="inline-settings-card">
     <div class="settings-header">
-      <h2>⚙️ LensClone System Settings</h2>
-      <p class="settings-subtitle">Configure search parameters, historical time windows, and location GPS precision modes.</p>
+      <h2>{{ i18n.t('settings.inline.title') }}</h2>
+      <p class="settings-subtitle">{{ i18n.t('settings.inline.subtitle') }}</p>
     </div>
 
     <div class="settings-body">
+      <!-- Language Option -->
+      <div class="form-group">
+        <label for="inline-language">{{ i18n.t('settings.language.label') }}</label>
+        <select id="inline-language" [(ngModel)]="language">
+          <option value="auto">{{ i18n.t('settings.language.auto') }}</option>
+          <option value="es-AR">{{ i18n.t('settings.language.esAr') }}</option>
+          <option value="en-US">{{ i18n.t('settings.language.enUs') }}</option>
+        </select>
+        <p class="field-hint">
+          @if (language === 'auto') {
+            {{ i18n.t('settings.language.hint.auto', { locale: detectedLocaleLabel() }) }}
+          } @else {
+            {{ i18n.t('settings.language.hint.manual') }}
+          }
+        </p>
+      </div>
+
       <!-- Location Accuracy Mode Option -->
       <div class="form-group">
-        <label for="inline-locationAccuracy">Location Accuracy Mode</label>
+        <label for="inline-locationAccuracy">{{ i18n.t('settings.locationAccuracy.label') }}</label>
         <select id="inline-locationAccuracy" [(ngModel)]="locationAccuracyMode">
-          <option value="precise">Precise (Exact unrounded GPS coordinates)</option>
-          <option value="approximate">Approximate (Coarse ~1.1km grid for privacy)</option>
+          <option value="precise">{{ i18n.t('settings.locationAccuracy.precise') }}</option>
+          <option value="approximate">{{ i18n.t('settings.locationAccuracy.approximate') }}</option>
         </select>
-        <p class="field-hint">Flag: Uploaded coordinates will be tagged with <strong>isApproximate = {{ locationAccuracyMode === 'approximate' }}</strong>.</p>
+        <p class="field-hint">
+          {{ i18n.t('settings.locationAccuracy.hintPrefix') }}
+          <strong>isApproximate = {{ locationAccuracyMode === 'approximate' }}</strong>.
+        </p>
       </div>
 
       <!-- Time Window Option -->
       <div class="form-group">
-        <label for="inline-timeWindow">Historical Time Window (Days)</label>
+        <label for="inline-timeWindow">{{ i18n.t('settings.timeWindow.label') }}</label>
         <select id="inline-timeWindow" [(ngModel)]="timeWindowDays">
-          <option [value]="7">7 Days</option>
-          <option [value]="14">14 Days</option>
-          <option [value]="30">30 Days</option>
-          <option [value]="90">90 Days</option>
+          <option [value]="7">{{ i18n.t('settings.timeWindow.option7') }}</option>
+          <option [value]="14">{{ i18n.t('settings.timeWindow.option14') }}</option>
+          <option [value]="30">{{ i18n.t('settings.timeWindow.option30') }}</option>
+          <option [value]="90">{{ i18n.t('settings.timeWindow.option90') }}</option>
         </select>
-        <p class="field-hint">Compares scanned prices against submissions within this recent time period.</p>
+        <p class="field-hint">{{ i18n.t('settings.timeWindow.hint') }}</p>
       </div>
 
       <!-- Search Radius Option -->
       <div class="form-group">
-        <label for="inline-searchRadius">Geographic Radius (Km): {{ radiusKm }} km</label>
+        <label for="inline-searchRadius">
+          {{ i18n.t('settings.searchRadius.label', { radius: radiusKm }) }}
+        </label>
         <input
           type="range"
           id="inline-searchRadius"
@@ -39,12 +61,14 @@
           step="1"
           [(ngModel)]="radiusKm"
         />
-        <p class="field-hint">Defines the search radius around your current location for price comparison.</p>
+        <p class="field-hint">{{ i18n.t('settings.searchRadius.hint') }}</p>
       </div>
 
       <!-- Price Tolerance Option -->
       <div class="form-group">
-        <label for="inline-tolerance">Price Rating Tolerance (%): ±{{ tolerancePercent }}%</label>
+        <label for="inline-tolerance">
+          {{ i18n.t('settings.tolerance.label', { tolerance: tolerancePercent }) }}
+        </label>
         <input
           type="range"
           id="inline-tolerance"
@@ -53,13 +77,15 @@
           step="1"
           [(ngModel)]="tolerancePercent"
         />
-        <p class="field-hint">Prices within ±{{ tolerancePercent }}% of regional average are marked as Average.</p>
+        <p class="field-hint">
+          {{ i18n.t('settings.tolerance.hint', { tolerance: tolerancePercent }) }}
+        </p>
       </div>
 
       <!-- Backend API URL -->
       @if (authService.isAdmin()) {
         <div class="form-group">
-          <label for="inline-apiUrl">Backend API Base URL</label>
+          <label for="inline-apiUrl">{{ i18n.t('settings.apiUrl.label') }}</label>
           <input
             type="text"
             id="inline-apiUrl"
@@ -72,14 +98,22 @@
 
     <div class="settings-footer">
       @if (savedNotification()) {
-        <span class="saved-badge">✓ Preferences Saved</span>
+        <span class="saved-badge">{{ i18n.t('settings.savedBadge') }}</span>
       }
-      <button class="save-btn" (click)="saveSettings()">Save Preferences</button>
+      <button type="button" class="save-btn" (click)="saveSettings()">
+        {{ i18n.t('settings.saveBtn') }}
+      </button>
     </div>
   </div>
 } @else {
   <!-- Settings Button Trigger -->
-  <button type="button" class="icon-btn" (click)="openModal()" aria-label="App Settings" title="App Settings">
+  <button
+    type="button"
+    class="icon-btn"
+    (click)="openModal()"
+    [attr.aria-label]="i18n.t('settings.trigger.ariaLabel')"
+    [attr.title]="i18n.t('settings.trigger.ariaLabel')"
+  >
     <span class="material-symbols-rounded">settings</span>
   </button>
 
@@ -88,36 +122,67 @@
     <div class="modal-backdrop" (click)="closeModal()">
       <div class="modal-card" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h2>⚙️ LensClone Settings</h2>
-          <button class="close-btn" (click)="closeModal()">✕</button>
+          <h2>{{ i18n.t('settings.modal.title') }}</h2>
+          <button
+            type="button"
+            class="close-btn"
+            (click)="closeModal()"
+            [attr.aria-label]="i18n.t('settings.modal.closeAriaLabel')"
+          >
+            ✕
+          </button>
         </div>
 
         <div class="modal-body">
+          <!-- Language Option -->
+          <div class="form-group">
+            <label for="language">{{ i18n.t('settings.language.label') }}</label>
+            <select id="language" [(ngModel)]="language">
+              <option value="auto">{{ i18n.t('settings.language.auto') }}</option>
+              <option value="es-AR">{{ i18n.t('settings.language.esAr') }}</option>
+              <option value="en-US">{{ i18n.t('settings.language.enUs') }}</option>
+            </select>
+            <p class="field-hint">
+              @if (language === 'auto') {
+                {{ i18n.t('settings.language.hint.auto', { locale: detectedLocaleLabel() }) }}
+              } @else {
+                {{ i18n.t('settings.language.hint.manual') }}
+              }
+            </p>
+          </div>
+
           <!-- Location Accuracy Mode Option -->
           <div class="form-group">
-            <label for="locationAccuracy">Location Accuracy Mode</label>
+            <label for="locationAccuracy">{{ i18n.t('settings.locationAccuracy.label') }}</label>
             <select id="locationAccuracy" [(ngModel)]="locationAccuracyMode">
-              <option value="precise">Precise (Exact unrounded GPS coordinates)</option>
-              <option value="approximate">Approximate (Coarse ~1.1km grid for privacy)</option>
+              <option value="precise">{{ i18n.t('settings.locationAccuracy.precise') }}</option>
+              <option value="approximate">
+                {{ i18n.t('settings.locationAccuracy.approximate') }}
+              </option>
             </select>
-            <p class="field-hint">Flag: Uploaded coordinates will be tagged with <strong>isApproximate = {{ locationAccuracyMode === 'approximate' }}</strong>.</p>
+            <p class="field-hint">
+              {{ i18n.t('settings.locationAccuracy.hintPrefix') }}
+              <strong>isApproximate = {{ locationAccuracyMode === 'approximate' }}</strong>.
+            </p>
           </div>
 
           <!-- Time Window Option -->
           <div class="form-group">
-            <label for="timeWindow">Historical Time Window (Days)</label>
+            <label for="timeWindow">{{ i18n.t('settings.timeWindow.label') }}</label>
             <select id="timeWindow" [(ngModel)]="timeWindowDays">
-              <option [value]="7">7 Days</option>
-              <option [value]="14">14 Days</option>
-              <option [value]="30">30 Days</option>
-              <option [value]="90">90 Days</option>
+              <option [value]="7">{{ i18n.t('settings.timeWindow.option7') }}</option>
+              <option [value]="14">{{ i18n.t('settings.timeWindow.option14') }}</option>
+              <option [value]="30">{{ i18n.t('settings.timeWindow.option30') }}</option>
+              <option [value]="90">{{ i18n.t('settings.timeWindow.option90') }}</option>
             </select>
-            <p class="field-hint">Compares scanned prices against submissions within this recent time period.</p>
+            <p class="field-hint">{{ i18n.t('settings.timeWindow.hint') }}</p>
           </div>
 
           <!-- Search Radius Option -->
           <div class="form-group">
-            <label for="searchRadius">Geographic Radius (Km): {{ radiusKm }} km</label>
+            <label for="searchRadius">
+              {{ i18n.t('settings.searchRadius.label', { radius: radiusKm }) }}
+            </label>
             <input
               type="range"
               id="searchRadius"
@@ -126,12 +191,14 @@
               step="1"
               [(ngModel)]="radiusKm"
             />
-            <p class="field-hint">Defines the search radius around your current location for price comparison.</p>
+            <p class="field-hint">{{ i18n.t('settings.searchRadius.hint') }}</p>
           </div>
 
           <!-- Price Tolerance Option -->
           <div class="form-group">
-            <label for="tolerance">Price Rating Tolerance (%): ±{{ tolerancePercent }}%</label>
+            <label for="tolerance">
+              {{ i18n.t('settings.tolerance.label', { tolerance: tolerancePercent }) }}
+            </label>
             <input
               type="range"
               id="tolerance"
@@ -140,13 +207,15 @@
               step="1"
               [(ngModel)]="tolerancePercent"
             />
-            <p class="field-hint">Prices within ±{{ tolerancePercent }}% of regional average are marked as Average.</p>
+            <p class="field-hint">
+              {{ i18n.t('settings.tolerance.hint', { tolerance: tolerancePercent }) }}
+            </p>
           </div>
 
           <!-- Backend API URL -->
           @if (authService.isAdmin()) {
             <div class="form-group">
-              <label for="apiUrl">Backend API Base URL</label>
+              <label for="apiUrl">{{ i18n.t('settings.apiUrl.label') }}</label>
               <input
                 type="text"
                 id="apiUrl"
@@ -158,8 +227,12 @@
         </div>
 
         <div class="modal-footer">
-          <button class="cancel-btn" (click)="closeModal()">Cancel</button>
-          <button class="save-btn" (click)="saveSettings()">Save Preferences</button>
+          <button type="button" class="cancel-btn" (click)="closeModal()">
+            {{ i18n.t('common.cancel') }}
+          </button>
+          <button type="button" class="save-btn" (click)="saveSettings()">
+            {{ i18n.t('settings.saveBtn') }}
+          </button>
         </div>
       </div>
     </div>

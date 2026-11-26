@@ -1,11 +1,32 @@
-import { Component, signal, computed, ElementRef, ViewChild, AfterViewInit, OnDestroy, effect } from '@angular/core';
+import { Component, signal, computed, ElementRef, ViewChild, AfterViewInit, OnDestroy, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
 import { HeatmapService, StoreGrocerySummary, StoreLocation } from '../../../services/heatmap/heatmap.service';
 import { ShoppingListService, ShoppingListItem } from '../../../services/shopping-list/shopping-list.service';
+import { I18nService } from '../../../services/i18n/i18n.service';
+import { TranslationKey } from '../../../services/i18n/translations.en-us';
 
 export type HeatmapMode = 'groceryList' | 'productFilter' | 'categoryFilter';
+
+const CATEGORY_TRANSLATION_KEYS: Record<string, TranslationKey> = {
+  Dairy: 'heatmap.category.Dairy',
+  Bakery: 'heatmap.category.Bakery',
+  Produce: 'heatmap.category.Produce',
+  Beverages: 'heatmap.category.Beverages',
+  Pantry: 'heatmap.category.Pantry',
+};
+
+const PRODUCT_TRANSLATION_KEYS: Record<string, TranslationKey> = {
+  p1: 'heatmap.product.p1',
+  p2: 'heatmap.product.p2',
+  p3: 'heatmap.product.p3',
+  p4: 'heatmap.product.p4',
+  p5: 'heatmap.product.p5',
+  p6: 'heatmap.product.p6',
+  p7: 'heatmap.product.p7',
+  p8: 'heatmap.product.p8',
+};
 
 @Component({
   selector: 'app-price-heatmap',
@@ -17,6 +38,7 @@ export type HeatmapMode = 'groceryList' | 'productFilter' | 'categoryFilter';
 export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef<HTMLDivElement>;
 
+  readonly i18n = inject(I18nService);
   readonly activeMode = signal<HeatmapMode>('groceryList');
   readonly selectedProductId = signal<string>('p1');
   readonly selectedCategoryName = signal<string>('Dairy');
@@ -83,12 +105,17 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
     readonly heatmapService: HeatmapService,
     readonly shoppingListService: ShoppingListService
   ) {
-    // Angular signal effect to sync map overlays with state changes
+    // Angular signal effect to sync map overlays with state and locale changes
     effect(() => {
+      this.i18n.activeLocale();
       const summaries = this.storeSummaries();
       const selectedId = this.selectedStoreId();
 
       if (this.map) {
+        this.renderUserLocationAndRadius(
+          this.heatmapService.CENTER_LAT,
+          this.heatmapService.CENTER_LNG,
+        );
         this.renderMapLayers(summaries, selectedId);
       }
     });
@@ -167,11 +194,14 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
       iconAnchor: [16, 16],
     });
 
-    const userMarker = L.marker([lat, lng], { icon: userMarkerIcon }).bindTooltip('You (10km Radius Center)', {
-      permanent: false,
-      direction: 'top',
-      className: 'custom-tooltip',
-    });
+    const userMarker = L.marker([lat, lng], { icon: userMarkerIcon }).bindTooltip(
+      this.i18n.t('heatmap.map.userTooltip'),
+      {
+        permanent: false,
+        direction: 'top',
+        className: 'custom-tooltip',
+      },
+    );
     this.userRadiusGroup.addLayer(userMarker);
   }
 
@@ -183,6 +213,12 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
     for (const summary of summaries) {
       const isSelected = selectedId === summary.storeId;
       const color = this.getStoreColor(summary.storeId);
+      const chainLabel = this.getChainLabel(summary.chain);
+      const totalFormatted = this.i18n.formatNumber(summary.estimatedBasketTotal, 2);
+      const vsCityText =
+        summary.savingsPercentage >= 0
+          ? this.i18n.t('heatmap.card.cheaper', { pct: summary.savingsPercentage })
+          : this.i18n.t('heatmap.card.higher', { pct: Math.abs(summary.savingsPercentage) });
 
       const icon = L.divIcon({
         className: 'store-pin-wrapper',
@@ -201,13 +237,13 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
         <div class="map-popup-card">
           <div class="popup-header" style="border-left: 4px solid ${color}">
             <h5>${summary.storeName}</h5>
-            <span class="chain-tag">${summary.chain}</span>
+            <span class="chain-tag">${chainLabel}</span>
           </div>
           <div class="popup-body">
             <p class="address-text"><span class="material-symbols-rounded icon-small">location_on</span> ${summary.address}</p>
             <p class="gps-coords">GPS: ${summary.lat.toFixed(5)}, ${summary.lng.toFixed(5)}</p>
-            <p class="price-line"><strong>Estimated Total:</strong> $${summary.estimatedBasketTotal.toFixed(2)}</p>
-            <p class="savings-text"><strong>Vs City Avg:</strong> ${summary.savingsPercentage >= 0 ? '-' + summary.savingsPercentage + '% cheaper' : '+' + Math.abs(summary.savingsPercentage) + '% higher'}</p>
+            <p class="price-line"><strong>${this.i18n.t('heatmap.map.popup.estimatedTotal')}</strong> $${totalFormatted}</p>
+            <p class="savings-text"><strong>${this.i18n.t('heatmap.map.popup.vsCityAvg')}</strong> ${vsCityText}</p>
           </div>
         </div>
       `;
@@ -219,6 +255,20 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
 
       this.storeMarkersGroup.addLayer(marker);
     }
+  }
+
+  getCategoryLabel(category: string): string {
+    const key = CATEGORY_TRANSLATION_KEYS[category];
+    return key ? this.i18n.t(key) : category;
+  }
+
+  getProductLabel(productId: string, fallbackName: string): string {
+    const key = PRODUCT_TRANSLATION_KEYS[productId];
+    return key ? this.i18n.t(key) : fallbackName;
+  }
+
+  getChainLabel(chain: string): string {
+    return chain === 'Local Grocery' ? this.i18n.t('heatmap.chain.localGrocery') : chain;
   }
 
   setMode(mode: HeatmapMode): void {

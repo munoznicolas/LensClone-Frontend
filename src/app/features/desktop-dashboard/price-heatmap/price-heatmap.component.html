@@ -5,38 +5,41 @@
       <div class="title-group">
         <span class="material-symbols-rounded map-icon">map</span>
         <div>
-          <h3>Geolocated Store Price Heatmap & GPS Optimizer</h3>
-          <p class="subtitle">Real-time store prices associated with exact GPS coordinates</p>
+          <h3>{{ i18n.t('heatmap.title') }}</h3>
+          <p class="subtitle">{{ i18n.t('heatmap.subtitle') }}</p>
         </div>
       </div>
 
       <!-- Mode Selector Pills -->
       <div class="mode-tabs">
-        <button 
-          type="button" 
-          class="mode-btn" 
+        <button
+          type="button"
+          class="mode-btn"
           [class.active]="activeMode() === 'groceryList'"
-          (click)="setMode('groceryList')">
+          (click)="setMode('groceryList')"
+        >
           <span class="material-symbols-rounded">shopping_cart</span>
-          <span>Grocery List Optimizer</span>
+          <span>{{ i18n.t('heatmap.mode.groceryList') }}</span>
         </button>
 
-        <button 
-          type="button" 
-          class="mode-btn" 
+        <button
+          type="button"
+          class="mode-btn"
           [class.active]="activeMode() === 'productFilter'"
-          (click)="setMode('productFilter')">
+          (click)="setMode('productFilter')"
+        >
           <span class="material-symbols-rounded">filter_alt</span>
-          <span>Selected Product</span>
+          <span>{{ i18n.t('heatmap.mode.productFilter') }}</span>
         </button>
 
-        <button 
-          type="button" 
-          class="mode-btn" 
+        <button
+          type="button"
+          class="mode-btn"
           [class.active]="activeMode() === 'categoryFilter'"
-          (click)="setMode('categoryFilter')">
+          (click)="setMode('categoryFilter')"
+        >
           <span class="material-symbols-rounded">category</span>
-          <span>Category Aggregation</span>
+          <span>{{ i18n.t('heatmap.mode.categoryFilter') }}</span>
         </button>
       </div>
     </div>
@@ -48,12 +51,20 @@
           <div class="toolbar-info">
             <span class="info-badge">
               <span class="material-symbols-rounded">checklist</span>
-              <span>Analyzing <strong>{{ shoppingItems().length }} items</strong> from Active Shopping List</span>
+              <span>
+                {{ i18n.t('heatmap.toolbar.analyzingBefore') }}
+                <strong>{{ i18n.t('heatmap.toolbar.itemsCount', { count: shoppingItems().length }) }}</strong>
+                {{ i18n.t('heatmap.toolbar.analyzingAfter') }}
+              </span>
             </span>
             @if (bestStore(); as best) {
               <span class="recommendation-pill">
                 <span class="material-symbols-rounded">verified</span>
-                <span>Best Buying Store: <strong>{{ best.storeName }}</strong> (Save {{ best.savingsPercentage }}%)</span>
+                <span>
+                  {{ i18n.t('heatmap.toolbar.bestStoreBefore') }}
+                  <strong>{{ best.storeName }}</strong>
+                  {{ i18n.t('heatmap.toolbar.savePct', { pct: best.savingsPercentage }) }}
+                </span>
               </span>
             }
           </div>
@@ -61,14 +72,18 @@
 
         @case ('productFilter') {
           <div class="filter-group">
-            <label for="productSelect">Select Product to Filter Heatmap:</label>
-            <select 
-              id="productSelect" 
-              class="select-input" 
-              [ngModel]="selectedProductId()" 
-              (ngModelChange)="selectProduct($event)">
+            <label for="productSelect">{{ i18n.t('heatmap.toolbar.selectProduct') }}</label>
+            <select
+              id="productSelect"
+              class="select-input"
+              [ngModel]="selectedProductId()"
+              (ngModelChange)="selectProduct($event)"
+            >
               @for (prod of productCatalog(); track prod.id) {
-                <option [value]="prod.id">{{ prod.productName }} ({{ prod.category }}) - Base ${{ prod.basePrice.toFixed(2) }}</option>
+                <option [value]="prod.id">
+                  {{ getProductLabel(prod.id, prod.productName) }} ({{ getCategoryLabel(prod.category) }}) -
+                  {{ i18n.t('heatmap.toolbar.basePrice', { price: i18n.formatNumber(prod.basePrice, 2) }) }}
+                </option>
               }
             </select>
           </div>
@@ -76,15 +91,16 @@
 
         @case ('categoryFilter') {
           <div class="filter-group">
-            <span class="label">Select Category to Aggregate:</span>
+            <span class="label">{{ i18n.t('heatmap.toolbar.selectCategory') }}</span>
             <div class="chip-list">
               @for (cat of categories(); track cat) {
-                <button 
-                  type="button" 
-                  class="category-chip" 
+                <button
+                  type="button"
+                  class="category-chip"
                   [class.active]="selectedCategoryName() === cat"
-                  (click)="selectCategory(cat)">
-                  {{ cat }}
+                  (click)="selectCategory(cat)"
+                >
+                  {{ getCategoryLabel(cat) }}
                 </button>
               }
             </div>
@@ -100,13 +116,13 @@
     <div class="map-card">
       <div class="map-header">
         <div class="map-title">
-          <h4><span class="material-symbols-rounded">explore</span> Interactive Supermarket GPS Map</h4>
+          <h4><span class="material-symbols-rounded">explore</span> {{ i18n.t('heatmap.map.title') }}</h4>
         </div>
 
         <div class="legend">
-          <span class="legend-item"><span class="color-dot green"></span> Best Price</span>
-          <span class="legend-item"><span class="color-dot yellow"></span> Average</span>
-          <span class="legend-item"><span class="color-dot red"></span> Higher Cost</span>
+          <span class="legend-item"><span class="color-dot green"></span> {{ i18n.t('heatmap.legend.best') }}</span>
+          <span class="legend-item"><span class="color-dot yellow"></span> {{ i18n.t('heatmap.legend.average') }}</span>
+          <span class="legend-item"><span class="color-dot red"></span> {{ i18n.t('heatmap.legend.expensive') }}</span>
         </div>
       </div>
 
@@ -121,24 +137,24 @@
         <h4>
           <span class="material-symbols-rounded">bar_chart</span>
           @if (activeMode() === 'groceryList') {
-            Grocery Basket Total by Store GPS Location
+            {{ i18n.t('heatmap.rankings.groceryList') }}
           } @else if (activeMode() === 'productFilter') {
-            Product Price by Store GPS Location
+            {{ i18n.t('heatmap.rankings.productFilter') }}
           } @else {
-            Category Price Index by Store GPS Location
+            {{ i18n.t('heatmap.rankings.categoryFilter') }}
           }
         </h4>
-        <span class="sub-text">Sorted by lowest cost</span>
+        <span class="sub-text">{{ i18n.t('heatmap.rankings.sortedBy') }}</span>
       </div>
 
       <div class="stores-list">
         @for (store of storeSummaries(); track store.storeId) {
-          <div 
-            class="store-card" 
+          <div
+            class="store-card"
             [class.highlight]="store.status === 'best'"
             [class.selected]="selectedStoreId() === store.storeId"
-            (click)="selectStore(store.storeId)">
-            
+            (click)="selectStore(store.storeId)"
+          >
             <div class="store-card-header">
               <div class="name-badge-group">
                 <span class="status-indicator" [class]="store.status"></span>
@@ -147,27 +163,35 @@
                   <span class="store-address">{{ store.address }}</span>
                 </div>
               </div>
-              
+
               @if (store.status === 'best') {
-                <span class="best-badge">Best Store</span>
+                <span class="best-badge">{{ i18n.t('heatmap.card.bestStore') }}</span>
               }
             </div>
 
             <div class="store-card-body">
               <div class="metric">
                 <span class="label">
-                  @if (activeMode() === 'groceryList') { Estimated Basket Total } @else { Unit / Category Avg }
+                  @if (activeMode() === 'groceryList') {
+                    {{ i18n.t('heatmap.card.basketTotal') }}
+                  } @else {
+                    {{ i18n.t('heatmap.card.unitAvg') }}
+                  }
                 </span>
-                <span class="value">${{ store.estimatedBasketTotal.toFixed(2) }}</span>
+                <span class="value">${{ i18n.formatNumber(store.estimatedBasketTotal, 2) }}</span>
               </div>
 
               <div class="metric">
-                <span class="label">Price vs City Avg</span>
-                <span class="savings-tag" [class.positive]="store.savingsPercentage >= 0" [class.negative]="store.savingsPercentage < 0">
+                <span class="label">{{ i18n.t('heatmap.card.vsCityAvg') }}</span>
+                <span
+                  class="savings-tag"
+                  [class.positive]="store.savingsPercentage >= 0"
+                  [class.negative]="store.savingsPercentage < 0"
+                >
                   @if (store.savingsPercentage >= 0) {
-                    -{{ store.savingsPercentage }}% cheaper
+                    {{ i18n.t('heatmap.card.cheaper', { pct: store.savingsPercentage }) }}
                   } @else {
-                    +{{ mathAbs(store.savingsPercentage) }}% higher
+                    {{ i18n.t('heatmap.card.higher', { pct: mathAbs(store.savingsPercentage) }) }}
                   }
                 </span>
               </div>

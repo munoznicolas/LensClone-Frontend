@@ -4,25 +4,34 @@
     <div class="summary-card total-expenditure">
       <span class="material-symbols-rounded summary-icon">account_balance_wallet</span>
       <div class="summary-text">
-        <span class="summary-label">Total Expected Expenditure</span>
-        <span class="summary-value">${{ shoppingList.totalEstimatedExpenditure() | number:'1.2-2' }}</span>
+        <span class="summary-label">{{ i18n.t('shoppingList.summary.totalLabel') }}</span>
+        <span class="summary-value">
+          ${{ i18n.formatNumber(shoppingList.totalEstimatedExpenditure(), 2) }}
+        </span>
       </div>
     </div>
 
     <div class="summary-card">
       <span class="material-symbols-rounded summary-icon">shopping_cart</span>
       <div class="summary-text">
-        <span class="summary-label">Total Items & Units</span>
-        <span class="summary-value">{{ shoppingList.itemCount() }} items ({{ shoppingList.totalQuantity() }} units)</span>
+        <span class="summary-label">{{ i18n.t('shoppingList.summary.itemsLabel') }}</span>
+        <span class="summary-value">
+          {{
+            i18n.t('shoppingList.summary.itemsValue', {
+              items: shoppingList.itemCount(),
+              units: shoppingList.totalQuantity(),
+            })
+          }}
+        </span>
       </div>
     </div>
   </div>
 
   <!-- Quick Add Presets -->
   <div class="presets-section">
-    <span class="presets-label">Quick Add Common Items:</span>
+    <span class="presets-label">{{ i18n.t('shoppingList.presets.label') }}</span>
     <div class="presets-buttons">
-      @for (preset of presets; track preset.name) {
+      @for (preset of presets(); track preset.name) {
         <button type="button" class="preset-btn" (click)="addPreset(preset.name, preset.qty)">
           <span class="material-symbols-rounded">add</span>
           <span>{{ preset.name }}</span>
@@ -33,39 +42,42 @@
 
   <!-- Add Item Form -->
   <div class="add-item-card">
-    <h3><span class="material-symbols-rounded">add_shopping_cart</span> Add Item to List</h3>
-    
+    <h3>
+      <span class="material-symbols-rounded">add_shopping_cart</span>
+      {{ i18n.t('shoppingList.addForm.title') }}
+    </h3>
+
     <form (submit)="$event.preventDefault(); addItem()" class="add-item-form">
       <div class="form-group name-group">
-        <label for="item-name">Item Name</label>
-        <input 
+        <label for="item-name">{{ i18n.t('shoppingList.addForm.nameLabel') }}</label>
+        <input
           id="item-name"
-          type="text" 
-          placeholder="e.g. Milk, Eggs, Coffee..." 
+          type="text"
+          [placeholder]="i18n.t('shoppingList.addForm.namePlaceholder')"
           [value]="newItemName()"
           (input)="newItemName.set($any($event.target).value)"
-          required 
+          required
         />
       </div>
 
       <div class="form-group qty-group">
-        <label for="item-qty">Qty</label>
-        <input 
+        <label for="item-qty">{{ i18n.t('shoppingList.addForm.qtyLabel') }}</label>
+        <input
           id="item-qty"
-          type="number" 
-          min="1" 
+          type="number"
+          min="1"
           [value]="newItemQty()"
           (input)="newItemQty.set($any($event.target).valueAsNumber || 1)"
         />
       </div>
 
       <div class="form-group price-group">
-        <label for="item-price">Target/Unit Price ($)</label>
-        <input 
+        <label for="item-price">{{ i18n.t('shoppingList.addForm.priceLabel') }}</label>
+        <input
           id="item-price"
-          type="number" 
-          step="0.01" 
-          placeholder="Auto"
+          type="number"
+          step="0.01"
+          [placeholder]="i18n.t('shoppingList.addForm.pricePlaceholder')"
           [value]="newItemPrice() ?? ''"
           (input)="newItemPrice.set($any($event.target).valueAsNumber || null)"
         />
@@ -73,7 +85,7 @@
 
       <button type="submit" class="add-btn" [disabled]="!newItemName().trim()">
         <span class="material-symbols-rounded">add_circle</span>
-        <span>Add</span>
+        <span>{{ i18n.t('shoppingList.addForm.addBtn') }}</span>
       </button>
     </form>
   </div>
@@ -81,11 +93,14 @@
   <!-- Shopping List Items -->
   <div class="items-card">
     <div class="items-header">
-      <h3><span class="material-symbols-rounded">format_list_bulleted</span> Your Shopping List</h3>
+      <h3>
+        <span class="material-symbols-rounded">format_list_bulleted</span>
+        {{ i18n.t('shoppingList.list.title') }}
+      </h3>
       @if (shoppingList.itemCount() > 0) {
         <button type="button" class="clear-btn" (click)="shoppingList.clearList()">
           <span class="material-symbols-rounded">delete_sweep</span>
-          <span>Clear All</span>
+          <span>{{ i18n.t('shoppingList.list.clearAll') }}</span>
         </button>
       }
     </div>
@@ -93,7 +108,7 @@
     @if (shoppingList.items().length === 0) {
       <div class="empty-state">
         <span class="material-symbols-rounded empty-icon">shopping_bag</span>
-        <p>Your shopping list is empty. Add items above to compute your estimated expenditure!</p>
+        <p>{{ i18n.t('shoppingList.list.empty') }}</p>
       </div>
     } @else {
       <div class="items-list">
@@ -103,14 +118,14 @@
               <span class="item-name">{{ item.name }}</span>
               <div class="price-estimate-badge">
                 <span class="material-symbols-rounded badge-icon">sell</span>
-                <span>Avg Unit: </span>
-                <input 
-                  type="number" 
-                  step="0.01" 
-                  class="price-edit-input" 
+                <span>{{ i18n.t('shoppingList.list.avgUnit') }}</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  class="price-edit-input"
                   [value]="(item.manualUnitPrice ?? item.estimatedUnitPrice).toFixed(2)"
                   (change)="onPriceChange(item, $event)"
-                  title="Click to edit unit average price"
+                  [attr.title]="i18n.t('shoppingList.list.editPriceTitle')"
                 />
               </div>
             </div>
@@ -124,12 +139,20 @@
 
             <!-- Line Subtotal -->
             <div class="item-subtotal">
-              <span class="subtotal-label">Subtotal</span>
-              <span class="subtotal-value">${{ (item.quantity * (item.manualUnitPrice ?? item.estimatedUnitPrice)) | number:'1.2-2' }}</span>
+              <span class="subtotal-label">{{ i18n.t('shoppingList.list.subtotal') }}</span>
+              <span class="subtotal-value">
+                ${{ i18n.formatNumber(item.quantity * (item.manualUnitPrice ?? item.estimatedUnitPrice), 2) }}
+              </span>
             </div>
 
             <!-- Remove Button -->
-            <button type="button" class="delete-btn" (click)="shoppingList.removeItem(item.id)" title="Remove item">
+            <button
+              type="button"
+              class="delete-btn"
+              (click)="shoppingList.removeItem(item.id)"
+              [attr.title]="i18n.t('shoppingList.list.removeTitle')"
+              [attr.aria-label]="i18n.t('shoppingList.list.removeTitle')"
+            >
               <span class="material-symbols-rounded">close</span>
             </button>
           </div>

@@ -1,12 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Detection, GroupedTextLine, ProductOffer } from '../text-detection/types';
 import { isOfferComplete } from '../text-detection/detection-helper/detection-helpers';
 import { PriceRating } from '../backend/price-api.service';
+import { I18nService } from '../i18n/i18n.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BoundingBoxRendererService {
+  private readonly i18n = inject(I18nService);
   render(ctx: CanvasRenderingContext2D, detections: Detection[], offers: ProductOffer[] = []): void {
     ctx.save();
     ctx.font = '14px Arial';
@@ -95,18 +97,18 @@ export class BoundingBoxRendererService {
   }
 
   private renderPriceRatingBadge(ctx: CanvasRenderingContext2D, box: { x: number; y: number; width: number; height: number }, rating?: number): void {
-    let badgeText = '🔵 New Submission';
+    let badgeText = this.i18n.t('overlay.rating.new');
     let bgColor = 'rgba(0, 102, 204, 0.9)';
     let textColor = '#ffffff';
 
     if (rating === PriceRating.BelowAverage) {
-      badgeText = '🟢 Below Average';
+      badgeText = this.i18n.t('overlay.rating.belowAverage');
       bgColor = 'rgba(0, 180, 80, 0.95)';
     } else if (rating === PriceRating.Average) {
-      badgeText = '⚪ Average Price';
+      badgeText = this.i18n.t('overlay.rating.average');
       bgColor = 'rgba(120, 130, 140, 0.95)';
     } else if (rating === PriceRating.AboveAverage) {
-      badgeText = '🔴 Above Average';
+      badgeText = this.i18n.t('overlay.rating.aboveAverage');
       bgColor = 'rgba(220, 50, 50, 0.95)';
     }
 
@@ -139,7 +141,10 @@ export class BoundingBoxRendererService {
       ctx.strokeRect(box.x, box.y, box.width, box.height);
       ctx.setLineDash([]);
 
-      const tagText = `Line #${line.lineId} (${line.detections.length})`;
+      const tagText = this.i18n.t('overlay.lineTag', {
+        lineId: line.lineId,
+        count: line.detections.length,
+      });
       const padding = 4;
       const textWidth = ctx.measureText(tagText).width;
       const labelWidth = textWidth + padding * 2;

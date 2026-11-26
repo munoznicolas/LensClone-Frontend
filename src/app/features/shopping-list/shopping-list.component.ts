@@ -1,27 +1,30 @@
-import { Component, signal } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { Component, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ShoppingListService, ShoppingListItem } from '../../services/shopping-list/shopping-list.service';
+import { I18nService } from '../../services/i18n/i18n.service';
 
 @Component({
   selector: 'app-shopping-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, DecimalPipe],
+  imports: [CommonModule, FormsModule],
   templateUrl: './shopping-list.component.html',
   styleUrl: './shopping-list.component.css',
 })
 export class ShoppingListComponent {
+  readonly i18n = inject(I18nService);
+
   readonly newItemName = signal('');
   readonly newItemQty = signal(1);
   readonly newItemPrice = signal<number | null>(null);
 
-  readonly presets = [
-    { name: 'Organic Milk 1L', qty: 1 },
-    { name: 'Large Eggs 12-pack', qty: 1 },
-    { name: 'Whole Wheat Bread', qty: 1 },
-    { name: 'Ground Coffee 250g', qty: 1 },
-    { name: 'Bananas 1kg', qty: 1 },
-  ];
+  readonly presets = computed(() => [
+    { name: this.i18n.t('shoppingList.presets.milk'), qty: 1 },
+    { name: this.i18n.t('shoppingList.presets.eggs'), qty: 1 },
+    { name: this.i18n.t('shoppingList.presets.bread'), qty: 1 },
+    { name: this.i18n.t('shoppingList.presets.coffee'), qty: 1 },
+    { name: this.i18n.t('shoppingList.presets.bananas'), qty: 1 },
+  ]);
 
   constructor(readonly shoppingList: ShoppingListService) {}
 

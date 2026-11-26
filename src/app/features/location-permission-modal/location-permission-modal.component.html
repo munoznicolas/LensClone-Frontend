@@ -5,19 +5,24 @@
       <div class="google-icon-wrapper">
         <span class="material-symbols-rounded location-hero-icon">my_location</span>
       </div>
-      <h3 class="dialog-title">Allow LensClone to access this device's location?</h3>
+      <h3 class="dialog-title">{{ i18n.t('locationModal.title') }}</h3>
       <p class="dialog-subtitle">
-        Select your location accuracy level. Captured prices and scans will be flagged accordingly as <strong>precise</strong> or <strong>approximate</strong>.
+        {{ i18n.t('locationModal.subtitleBefore') }}
+        <strong>{{ i18n.t('locationModal.subtitlePrecise') }}</strong>
+        {{ i18n.t('locationModal.subtitleOr') }}
+        <strong>{{ i18n.t('locationModal.subtitleApproximate') }}</strong>
+        {{ i18n.t('locationModal.subtitleAfter') }}
       </p>
     </div>
 
     <!-- Accuracy Mode Selection Cards -->
     <div class="mode-options-grid">
       <!-- Precise Choice Card -->
-      <div 
-        class="choice-card" 
+      <div
+        class="choice-card"
         [class.selected]="selectedMode === 'precise'"
-        (click)="selectMode('precise')">
+        (click)="selectMode('precise')"
+      >
         <div class="card-radio">
           <span class="radio-dot" [class.active]="selectedMode === 'precise'"></span>
         </div>
@@ -26,20 +31,19 @@
         </div>
         <div class="card-content">
           <div class="title-row">
-            <span class="mode-title">Precise Location</span>
+            <span class="mode-title">{{ i18n.t('locationModal.precise.title') }}</span>
             <span class="flag-badge precise">isApproximate = false</span>
           </div>
-          <p class="mode-desc">
-            Uses exact unrounded GPS coordinates for store-level price matching and precise aisle navigation.
-          </p>
+          <p class="mode-desc">{{ i18n.t('locationModal.precise.desc') }}</p>
         </div>
       </div>
 
       <!-- Approximate Choice Card -->
-      <div 
-        class="choice-card" 
+      <div
+        class="choice-card"
         [class.selected]="selectedMode === 'approximate'"
-        (click)="selectMode('approximate')">
+        (click)="selectMode('approximate')"
+      >
         <div class="card-radio">
           <span class="radio-dot" [class.active]="selectedMode === 'approximate'"></span>
         </div>
@@ -48,12 +52,10 @@
         </div>
         <div class="card-content">
           <div class="title-row">
-            <span class="mode-title">Approximate Location</span>
+            <span class="mode-title">{{ i18n.t('locationModal.approximate.title') }}</span>
             <span class="flag-badge approximate">isApproximate = true</span>
           </div>
-          <p class="mode-desc">
-            Rounds GPS to 2 decimal places (~1.1 km grid resolution) for privacy while matching regional prices.
-          </p>
+          <p class="mode-desc">{{ i18n.t('locationModal.approximate.desc') }}</p>
         </div>
       </div>
     </div>
@@ -61,11 +63,11 @@
     <!-- Dialog Action Buttons -->
     <div class="dialog-actions">
       <button type="button" class="btn-secondary" (click)="denyPermission()">
-        Don't Allow
+        {{ i18n.t('locationModal.denyBtn') }}
       </button>
       <button type="button" class="btn-primary" (click)="confirmPermission()">
         <span class="material-symbols-rounded icon-small">check_circle</span>
-        <span>Allow Selected</span>
+        <span>{{ i18n.t('locationModal.allowBtn') }}</span>
       </button>
     </div>
   </div>

@@ -34,8 +34,8 @@
             class="icon-btn"
             [class.active]="isTorchOn()"
             (click)="toggleTorch()"
-            aria-label="Toggle Flashlight"
-            [attr.title]="isTorchOn() ? 'Turn Off Flash' : 'Turn On Flash'"
+            [attr.aria-label]="i18n.t('lens.flash.ariaLabel')"
+            [attr.title]="isTorchOn() ? i18n.t('lens.flash.turnOff') : i18n.t('lens.flash.turnOn')"
           >
             <span class="material-symbols-rounded" [class.filled]="isTorchOn()">
               {{ isTorchOn() ? 'flash_on' : 'flash_off' }}
@@ -49,7 +49,7 @@
       <!-- Centered Application Title Lockup -->
       <div class="app-title-lockup">
         <span class="material-symbols-rounded lens-logo">center_focus_strong</span>
-        <h1 class="app-title">Google Lens</h1>
+        <h1 class="app-title">{{ i18n.t('lens.title') }}</h1>
       </div>
 
       <!-- Action Controls (Right) -->
@@ -59,8 +59,8 @@
           type="button"
           class="icon-btn"
           (click)="openModal('shoppingList')"
-          aria-label="Shopping List & Budget"
-          title="Shopping List & Budget Estimator"
+          [attr.aria-label]="i18n.t('lens.shoppingList.ariaLabel')"
+          [attr.title]="i18n.t('lens.shoppingList.title')"
         >
           <span class="material-symbols-rounded">shopping_bag</span>
         </button>
@@ -74,8 +74,12 @@
           class="profile-btn"
           [class.signed-in]="authService.isAuthenticated()"
           (click)="openModal('account')"
-          aria-label="Google Account Profile"
-          [attr.title]="authService.isAuthenticated() ? authService.currentUser()?.name : 'Sign In with Google'"
+          [attr.aria-label]="i18n.t('lens.account.ariaLabel')"
+          [attr.title]="
+            authService.isAuthenticated()
+              ? authService.currentUser()?.name
+              : i18n.t('lens.account.signInTitle')
+          "
         >
           <div class="google-avatar-ring">
             @if (authService.currentUser(); as user) {
@@ -95,8 +99,8 @@
           type="button"
           class="icon-btn"
           (click)="toggleMenu()"
-          aria-label="More Options"
-          title="Overflow Menu"
+          [attr.aria-label]="i18n.t('lens.moreOptions.ariaLabel')"
+          [attr.title]="i18n.t('lens.moreOptions.title')"
         >
           <span class="material-symbols-rounded">more_vert</span>
         </button>
@@ -109,25 +113,25 @@
       <div class="overflow-menu" role="menu" tabIndex="-1">
         <button type="button" class="menu-item" (click)="openModal('feedback')">
           <span class="material-symbols-rounded">feedback</span>
-          <span>Send feedback</span>
+          <span>{{ i18n.t('lens.menu.feedback') }}</span>
         </button>
         <button type="button" class="menu-item" (click)="openModal('permissions')">
           <span class="material-symbols-rounded">security</span>
-          <span>Manage permissions</span>
+          <span>{{ i18n.t('lens.menu.permissions') }}</span>
         </button>
         <button type="button" class="menu-item" (click)="openModal('privacy')">
           <span class="material-symbols-rounded">privacy_tip</span>
-          <span>Privacy policy</span>
+          <span>{{ i18n.t('lens.menu.privacy') }}</span>
         </button>
         <button type="button" class="menu-item" (click)="openModal('terms')">
           <span class="material-symbols-rounded">description</span>
-          <span>Terms of service</span>
+          <span>{{ i18n.t('lens.menu.terms') }}</span>
         </button>
         @if (deviceService.isDesktopSystem()) {
           <div class="menu-divider"></div>
           <button type="button" class="menu-item" (click)="switchToDesktopView()">
             <span class="material-symbols-rounded">desktop_windows</span>
-            <span>Switch to Desktop View</span>
+            <span>{{ i18n.t('lens.menu.switchDesktop') }}</span>
           </button>
         }
       </div>
@@ -136,7 +140,12 @@
 
   <!-- M3 Interactive Bottom Sheet Drawer (Results & Action Chips) -->
   @if (isFrozen()) {
-    <div class="m3-bottom-sheet" [class]="'snap-' + sheetSnap()" role="region" aria-label="Lens Search Results">
+    <div
+      class="m3-bottom-sheet"
+      [class]="'snap-' + sheetSnap()"
+      role="region"
+      [attr.aria-label]="i18n.t('lens.sheet.ariaLabel')"
+    >
       <div class="sheet-drag-handle-bar" (click)="toggleSheetSnap()">
         <div class="drag-handle-pill"></div>
       </div>
@@ -145,47 +154,67 @@
       <div class="action-chips-container">
         <button type="button" class="m3-action-chip" (click)="executeActionChip('copy')">
           <span class="material-symbols-rounded chip-icon">content_copy</span>
-          <span>Copy text</span>
+          <span>{{ i18n.t('lens.chip.copy') }}</span>
         </button>
         <button type="button" class="m3-action-chip" (click)="executeActionChip('translate')">
           <span class="material-symbols-rounded chip-icon">translate</span>
-          <span>Translate</span>
+          <span>{{ i18n.t('lens.chip.translate') }}</span>
         </button>
         <button type="button" class="m3-action-chip" (click)="executeActionChip('search_web')">
           <span class="material-symbols-rounded chip-icon">language</span>
-          <span>Search Web</span>
+          <span>{{ i18n.t('lens.chip.searchWeb') }}</span>
         </button>
         <button type="button" class="m3-action-chip" (click)="executeActionChip('listen')">
           <span class="material-symbols-rounded chip-icon">volume_up</span>
-          <span>Listen</span>
+          <span>{{ i18n.t('lens.chip.listen') }}</span>
         </button>
       </div>
 
       <!-- Detection Results Card List -->
       <div class="sheet-content-scroll">
         <div class="sheet-section-header">
-          <h2>Visual Matches & Prices</h2>
-          <button type="button" class="text-btn" (click)="togglePrimaryAction()">Resume Camera</button>
+          <h2>{{ i18n.t('lens.sheet.title') }}</h2>
+          <button type="button" class="text-btn" (click)="togglePrimaryAction()">
+            {{ i18n.t('lens.sheet.resumeCamera') }}
+          </button>
         </div>
 
         @if (pipelineService.offers().length > 0) {
           @if (!authService.isAuthenticated()) {
-            <div class="guest-contribute-banner" (click)="openModal('account')" role="button" tabindex="0">
+            <div
+              class="guest-contribute-banner"
+              (click)="openModal('account')"
+              role="button"
+              tabindex="0"
+            >
               <span class="material-symbols-rounded banner-icon">info</span>
               <div class="banner-text">
-                <strong>Viewing as Guest</strong>
-                <span>Price comparisons are live. Sign in with Google to contribute and save new prices.</span>
+                <strong>{{ i18n.t('lens.guestBanner.title') }}</strong>
+                <span>{{ i18n.t('lens.guestBanner.desc') }}</span>
               </div>
-              <button type="button" class="banner-action-btn">Sign In</button>
+              <button type="button" class="banner-action-btn">
+                {{ i18n.t('lens.guestBanner.signIn') }}
+              </button>
             </div>
           }
           <div class="offers-grid">
             @for (offer of pipelineService.offers(); track offer.id) {
               <div class="m3-result-card">
-                <div class="card-badge" [class.good]="offer.priceRating === 1" [class.average]="offer.priceRating === 2" [class.high]="offer.priceRating === 3">
-                  {{ offer.priceRating === 1 ? 'Great Price' : offer.priceRating === 3 ? 'High Price' : 'Average Price' }}
+                <div
+                  class="card-badge"
+                  [class.good]="offer.priceRating === 1"
+                  [class.average]="offer.priceRating === 2"
+                  [class.high]="offer.priceRating === 3"
+                >
+                  {{
+                    offer.priceRating === 1
+                      ? i18n.t('lens.offer.greatPrice')
+                      : offer.priceRating === 3
+                        ? i18n.t('lens.offer.highPrice')
+                        : i18n.t('lens.offer.averagePrice')
+                  }}
                 </div>
-                <h3 class="card-title">{{ offer.product || 'Detected Product' }}</h3>
+                <h3 class="card-title">{{ offer.product || i18n.t('lens.offer.detectedProduct') }}</h3>
                 <div class="card-price-row">
                   <span class="price-val">{{ offer.price }}</span>
                   @if (offer.quantity) {
@@ -195,19 +224,26 @@
                 @if (offer.coordinates) {
                   <div class="store-row">
                     <span class="material-symbols-rounded store-icon">location_on</span>
-                    <span>GPS Tracked ({{ offer.coordinates.latitude.toFixed(2) }}, {{ offer.coordinates.longitude.toFixed(2) }})</span>
+                    <span>
+                      {{
+                        i18n.t('lens.offer.gpsTracked', {
+                          lat: offer.coordinates.latitude.toFixed(2),
+                          lng: offer.coordinates.longitude.toFixed(2),
+                        })
+                      }}
+                    </span>
                   </div>
                 }
                 <div class="card-footer-status">
                   @if (authService.isAuthenticated()) {
-                    <span class="status-chip sync" title="Contributed to database with your Google account">
+                    <span class="status-chip sync" [attr.title]="i18n.t('lens.offer.contributedTitle')">
                       <span class="material-symbols-rounded">cloud_done</span>
-                      <span>Contributed</span>
+                      <span>{{ i18n.t('lens.offer.contributed') }}</span>
                     </span>
                   } @else {
-                    <span class="status-chip guest" title="Sign in with Google to contribute this price to the database">
+                    <span class="status-chip guest" [attr.title]="i18n.t('lens.offer.guestTitle')">
                       <span class="material-symbols-rounded">lock</span>
-                      <span>Guest (Comparison only)</span>
+                      <span>{{ i18n.t('lens.offer.guestOnly') }}</span>
                     </span>
                   }
                 </div>
@@ -217,7 +253,7 @@
         } @else {
           <div class="empty-search-state">
             <span class="material-symbols-rounded state-icon">pageview</span>
-            <p>Tap detected bounding boxes or text regions above to view instant price comparisons.</p>
+            <p>{{ i18n.t('lens.sheet.empty') }}</p>
           </div>
         }
       </div>
@@ -235,12 +271,20 @@
         type="button"
         class="history-thumb-btn"
         (click)="openModal('history')"
-        aria-label="Captured Frame History"
-        [attr.title]="historyService.count() > 0 ? 'View captured frames' : 'No captures yet'"
+        [attr.aria-label]="i18n.t('lens.history.ariaLabel')"
+        [attr.title]="
+          historyService.count() > 0
+            ? i18n.t('lens.history.viewTitle')
+            : i18n.t('lens.history.noneTitle')
+        "
       >
         @if (historyService.items().length > 0) {
           <div class="thumb-img-wrapper">
-            <img [src]="historyService.items()[0].dataUrl" alt="Latest Capture" class="thumb-img" />
+            <img
+              [src]="historyService.items()[0].dataUrl"
+              [alt]="i18n.t('lens.history.latestAlt')"
+              class="thumb-img"
+            />
           </div>
           <span class="thumb-badge">{{ historyService.count() }}</span>
         } @else {
@@ -255,8 +299,12 @@
           class="double-ring-shutter"
           [class.frozen]="isFrozen()"
           (click)="togglePrimaryAction()"
-          [attr.aria-label]="isFrozen() ? 'Resume Live Camera' : 'Freeze & Search Frame'"
-          [attr.title]="isFrozen() ? 'Resume Live Camera' : 'Freeze & Search Frame'"
+          [attr.aria-label]="
+            isFrozen() ? i18n.t('lens.shutter.resumeLabel') : i18n.t('lens.shutter.freezeLabel')
+          "
+          [attr.title]="
+            isFrozen() ? i18n.t('lens.shutter.resumeLabel') : i18n.t('lens.shutter.freezeLabel')
+          "
         >
           <div class="shutter-outer-ring"></div>
           <div class="shutter-inner-core">
@@ -273,8 +321,8 @@
           type="button"
           class="icon-btn gallery-btn"
           (click)="openModal('history')"
-          aria-label="Image Gallery"
-          title="Image Gallery"
+          [attr.aria-label]="i18n.t('lens.gallery.ariaLabel')"
+          [attr.title]="i18n.t('lens.gallery.title')"
         >
           <span class="material-symbols-rounded">image</span>
         </button>
@@ -288,13 +336,22 @@
 
     <!-- Google Account Modal -->
     @if (activeModal() === 'account') {
-      <div class="modal-sheet dialog-sheet account-sheet" role="dialog" aria-label="Google Account">
+      <div
+        class="modal-sheet dialog-sheet account-sheet"
+        role="dialog"
+        [attr.aria-label]="i18n.t('lens.accountModal.title')"
+      >
         <div class="modal-header">
           <div class="header-title">
             <span class="material-symbols-rounded">account_circle</span>
-            <h2>Google Account</h2>
+            <h2>{{ i18n.t('lens.accountModal.title') }}</h2>
           </div>
-          <button type="button" class="close-btn" (click)="closeModal()" aria-label="Close">
+          <button
+            type="button"
+            class="close-btn"
+            (click)="closeModal()"
+            [attr.aria-label]="i18n.t('common.close')"
+          >
             <span class="material-symbols-rounded">close</span>
           </button>
         </div>
@@ -315,17 +372,15 @@
 
             <div class="account-status-badge signed-in">
               <span class="material-symbols-rounded">check_circle</span>
-              <span>Signed in with Google (Price submissions enabled)</span>
+              <span>{{ i18n.t('lens.accountModal.signedInBadge') }}</span>
             </div>
 
-            <p class="account-desc">
-              Your captured frame history and settings are active for this account.
-            </p>
+            <p class="account-desc">{{ i18n.t('lens.accountModal.activeDesc') }}</p>
           } @else {
             <div class="anonymous-banner">
               <span class="material-symbols-rounded anon-icon">no_accounts</span>
-              <h3>Using Lens as Guest</h3>
-              <p>Guests can explore and compare live prices. Sign in with Google to contribute new prices to the system.</p>
+              <h3>{{ i18n.t('lens.accountModal.guestTitle') }}</h3>
+              <p>{{ i18n.t('lens.accountModal.guestDesc') }}</p>
             </div>
 
             <button type="button" class="google-btn" (click)="signInGoogle()">
@@ -347,7 +402,7 @@
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                 />
               </svg>
-              <span>Sign in with Google</span>
+              <span>{{ i18n.t('lens.accountModal.signInBtn') }}</span>
             </button>
           }
         </div>
@@ -356,10 +411,12 @@
           @if (authService.isAuthenticated()) {
             <button type="button" class="danger-btn" (click)="signOut()">
               <span class="material-symbols-rounded">logout</span>
-              Sign Out
+              {{ i18n.t('lens.accountModal.signOutBtn') }}
             </button>
           } @else {
-            <button type="button" class="secondary-btn" (click)="closeModal()">Continue Anonymously</button>
+            <button type="button" class="secondary-btn" (click)="closeModal()">
+              {{ i18n.t('lens.accountModal.continueGuest') }}
+            </button>
           }
         </div>
       </div>
@@ -367,13 +424,22 @@
 
     <!-- History Drawer / Modal -->
     @if (activeModal() === 'history') {
-      <div class="modal-sheet history-sheet" role="dialog" aria-label="Captured Frames History">
+      <div
+        class="modal-sheet history-sheet"
+        role="dialog"
+        [attr.aria-label]="i18n.t('lens.historyModal.ariaLabel')"
+      >
         <div class="modal-header">
           <div class="header-title">
             <span class="material-symbols-rounded">history</span>
-            <h2>Captured Frames</h2>
+            <h2>{{ i18n.t('lens.historyModal.title') }}</h2>
           </div>
-          <button type="button" class="close-btn" (click)="closeModal()" aria-label="Close">
+          <button
+            type="button"
+            class="close-btn"
+            (click)="closeModal()"
+            [attr.aria-label]="i18n.t('common.close')"
+          >
             <span class="material-symbols-rounded">close</span>
           </button>
         </div>
@@ -382,8 +448,8 @@
           @if (historyService.count() === 0) {
             <div class="empty-state">
               <span class="material-symbols-rounded empty-icon">photo_camera</span>
-              <p>No captured frames yet.</p>
-              <span class="subtext">Tap the search button to freeze and save frames.</span>
+              <p>{{ i18n.t('lens.historyModal.emptyTitle') }}</p>
+              <span class="subtext">{{ i18n.t('lens.historyModal.emptySub') }}</span>
             </div>
           } @else {
             <div class="history-grid">
@@ -394,22 +460,30 @@
                   (click)="viewHistoryItem(item)"
                 >
                   <div class="thumbnail-wrapper">
-                    <img [src]="item.dataUrl" alt="Captured Frame" class="thumbnail-img" />
+                    <img
+                      [src]="item.dataUrl"
+                      [alt]="i18n.t('lens.historyModal.frameAlt')"
+                      class="thumbnail-img"
+                    />
                     <button
                       type="button"
                       class="delete-btn"
                       (click)="deleteHistoryItem(item.id, $event)"
-                      title="Delete Frame"
-                      aria-label="Delete Frame"
+                      [attr.title]="i18n.t('lens.historyModal.deleteFrame')"
+                      [attr.aria-label]="i18n.t('lens.historyModal.deleteFrame')"
                     >
                       <span class="material-symbols-rounded">delete</span>
                     </button>
                   </div>
                   <div class="history-info">
-                    <span class="history-time">{{ item.timestamp | date: 'shortTime' }}</span>
+                    <span class="history-time">{{ i18n.formatTime(item.timestamp) }}</span>
                     <span class="detections-tag">
                       <span class="material-symbols-rounded text-icon">subtitles</span>
-                      {{ item.detectionsCount }} detected
+                      {{
+                        i18n.t('lens.historyModal.detectedCount', {
+                          count: item.detectionsCount,
+                        })
+                      }}
                     </span>
                   </div>
                 </div>
@@ -422,7 +496,7 @@
           <div class="modal-footer">
             <button type="button" class="danger-btn" (click)="clearHistory()">
               <span class="material-symbols-rounded">delete_sweep</span>
-              Clear All History
+              {{ i18n.t('lens.historyModal.clearAll') }}
             </button>
           </div>
         }
@@ -431,10 +505,19 @@
 
     <!-- Send Feedback Modal -->
     @if (activeModal() === 'feedback') {
-      <div class="modal-sheet dialog-sheet" role="dialog" aria-label="Send Feedback">
+      <div
+        class="modal-sheet dialog-sheet"
+        role="dialog"
+        [attr.aria-label]="i18n.t('lens.feedbackModal.title')"
+      >
         <div class="modal-header">
-          <h2>Send Feedback</h2>
-          <button type="button" class="close-btn" (click)="closeModal()">
+          <h2>{{ i18n.t('lens.feedbackModal.title') }}</h2>
+          <button
+            type="button"
+            class="close-btn"
+            (click)="closeModal()"
+            [attr.aria-label]="i18n.t('common.close')"
+          >
             <span class="material-symbols-rounded">close</span>
           </button>
         </div>
@@ -442,10 +525,10 @@
           @if (feedbackSubmitted()) {
             <div class="success-message">
               <span class="material-symbols-rounded check-icon">check_circle</span>
-              <p>Thank you for your feedback!</p>
+              <p>{{ i18n.t('lens.feedbackModal.thanks') }}</p>
             </div>
           } @else {
-            <p class="dialog-intro">How is your experience with Lens Clone?</p>
+            <p class="dialog-intro">{{ i18n.t('lens.feedbackModal.intro') }}</p>
             <div class="rating-bar">
               @for (star of [1, 2, 3, 4, 5]; track star) {
                 <button
@@ -461,7 +544,7 @@
             <textarea
               class="feedback-textarea"
               rows="4"
-              placeholder="Describe your issue or suggestions..."
+              [placeholder]="i18n.t('lens.feedbackModal.placeholder')"
               [value]="feedbackText()"
               (input)="feedbackText.set($any($event.target).value)"
             ></textarea>
@@ -469,14 +552,16 @@
         </div>
         @if (!feedbackSubmitted()) {
           <div class="modal-footer">
-            <button type="button" class="secondary-btn" (click)="closeModal()">Cancel</button>
+            <button type="button" class="secondary-btn" (click)="closeModal()">
+              {{ i18n.t('common.cancel') }}
+            </button>
             <button
               type="button"
               class="primary-modal-btn"
               [disabled]="!feedbackText().trim()"
               (click)="submitFeedback()"
             >
-              Submit
+              {{ i18n.t('lens.feedbackModal.submit') }}
             </button>
           </div>
         }
@@ -485,10 +570,19 @@
 
     <!-- Manage Permissions Modal -->
     @if (activeModal() === 'permissions') {
-      <div class="modal-sheet dialog-sheet" role="dialog" aria-label="Manage Permissions">
+      <div
+        class="modal-sheet dialog-sheet"
+        role="dialog"
+        [attr.aria-label]="i18n.t('lens.permissionsModal.ariaLabel')"
+      >
         <div class="modal-header">
-          <h2>Application Permissions</h2>
-          <button type="button" class="close-btn" (click)="closeModal()">
+          <h2>{{ i18n.t('lens.permissionsModal.title') }}</h2>
+          <button
+            type="button"
+            class="close-btn"
+            (click)="closeModal()"
+            [attr.aria-label]="i18n.t('common.close')"
+          >
             <span class="material-symbols-rounded">close</span>
           </button>
         </div>
@@ -496,33 +590,44 @@
           <div class="perm-item">
             <span class="material-symbols-rounded perm-icon">videocam</span>
             <div class="perm-text">
-              <strong>Camera Access</strong>
-              <span>Required for real-time text recognition and frame capture.</span>
+              <strong>{{ i18n.t('lens.permissionsModal.cameraTitle') }}</strong>
+              <span>{{ i18n.t('lens.permissionsModal.cameraDesc') }}</span>
             </div>
-            <span class="perm-status active">Granted</span>
+            <span class="perm-status active">{{ i18n.t('lens.permissionsModal.granted') }}</span>
           </div>
 
           <div class="perm-item">
             <span class="material-symbols-rounded perm-icon">storage</span>
             <div class="perm-text">
-              <strong>Local Storage</strong>
-              <span>Used to save captured frame history locally in browser.</span>
+              <strong>{{ i18n.t('lens.permissionsModal.storageTitle') }}</strong>
+              <span>{{ i18n.t('lens.permissionsModal.storageDesc') }}</span>
             </div>
-            <span class="perm-status active">Active</span>
+            <span class="perm-status active">{{ i18n.t('lens.permissionsModal.active') }}</span>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="primary-modal-btn" (click)="closeModal()">Close</button>
+          <button type="button" class="primary-modal-btn" (click)="closeModal()">
+            {{ i18n.t('common.close') }}
+          </button>
         </div>
       </div>
     }
 
     <!-- Shopping List & Budget Estimator Modal -->
     @if (activeModal() === 'shoppingList') {
-      <div class="modal-sheet shopping-list-modal-sheet" role="dialog" aria-label="Shopping List & Budget Estimator">
+      <div
+        class="modal-sheet shopping-list-modal-sheet"
+        role="dialog"
+        [attr.aria-label]="i18n.t('lens.shoppingListModal.title')"
+      >
         <div class="modal-header">
-          <h2>Shopping List & Budget Estimator</h2>
-          <button type="button" class="close-btn" (click)="closeModal()">
+          <h2>{{ i18n.t('lens.shoppingListModal.title') }}</h2>
+          <button
+            type="button"
+            class="close-btn"
+            (click)="closeModal()"
+            [attr.aria-label]="i18n.t('common.close')"
+          >
             <span class="material-symbols-rounded">close</span>
           </button>
         </div>
@@ -534,52 +639,62 @@
 
     <!-- Privacy Policy Modal -->
     @if (activeModal() === 'privacy') {
-      <div class="modal-sheet dialog-sheet" role="dialog" aria-label="Privacy Policy">
+      <div
+        class="modal-sheet dialog-sheet"
+        role="dialog"
+        [attr.aria-label]="i18n.t('lens.privacyModal.title')"
+      >
         <div class="modal-header">
-          <h2>Privacy Policy</h2>
-          <button type="button" class="close-btn" (click)="closeModal()">
+          <h2>{{ i18n.t('lens.privacyModal.title') }}</h2>
+          <button
+            type="button"
+            class="close-btn"
+            (click)="closeModal()"
+            [attr.aria-label]="i18n.t('common.close')"
+          >
             <span class="material-symbols-rounded">close</span>
           </button>
         </div>
         <div class="modal-body text-content">
-          <h3>100% On-Device Processing</h3>
-          <p>
-            Lens Clone processes video frames, text detection (DBNet), and text recognition (CRNN)
-            entirely inside your browser using WebAssembly (ONNX Runtime Web).
-          </p>
-          <p>
-            No video streams, cropped images, or detected text data are ever sent to external cloud
-            servers. All frame history items remain stored in your local browser storage.
-          </p>
+          <h3>{{ i18n.t('lens.privacyModal.heading') }}</h3>
+          <p>{{ i18n.t('lens.privacyModal.p1') }}</p>
+          <p>{{ i18n.t('lens.privacyModal.p2') }}</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="primary-modal-btn" (click)="closeModal()">Got it</button>
+          <button type="button" class="primary-modal-btn" (click)="closeModal()">
+            {{ i18n.t('lens.privacyModal.gotIt') }}
+          </button>
         </div>
       </div>
     }
 
     <!-- Terms of Service Modal -->
     @if (activeModal() === 'terms') {
-      <div class="modal-sheet dialog-sheet" role="dialog" aria-label="Terms of Service">
+      <div
+        class="modal-sheet dialog-sheet"
+        role="dialog"
+        [attr.aria-label]="i18n.t('lens.termsModal.title')"
+      >
         <div class="modal-header">
-          <h2>Terms of Service</h2>
-          <button type="button" class="close-btn" (click)="closeModal()">
+          <h2>{{ i18n.t('lens.termsModal.title') }}</h2>
+          <button
+            type="button"
+            class="close-btn"
+            (click)="closeModal()"
+            [attr.aria-label]="i18n.t('common.close')"
+          >
             <span class="material-symbols-rounded">close</span>
           </button>
         </div>
         <div class="modal-body text-content">
-          <h3>Proof of Concept Project</h3>
-          <p>
-            Lens Clone is an open-source Proof-of-Concept web application intended for research,
-            benchmarking, and demonstration of client-side computer vision models.
-          </p>
-          <p>
-            The application is provided "as-is" without warranty of any kind. Users are free to run
-            and inspect the codebase locally.
-          </p>
+          <h3>{{ i18n.t('lens.termsModal.heading') }}</h3>
+          <p>{{ i18n.t('lens.termsModal.p1') }}</p>
+          <p>{{ i18n.t('lens.termsModal.p2') }}</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="primary-modal-btn" (click)="closeModal()">Accept</button>
+          <button type="button" class="primary-modal-btn" (click)="closeModal()">
+            {{ i18n.t('lens.termsModal.accept') }}
+          </button>
         </div>
       </div>
     }

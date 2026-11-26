@@ -8,6 +8,6 @@ The `Overlay` feature renders real-time visual bounding boxes, OCR text badges, 
 - [overlay.component.css](file:///d:/Repositories/PoC-LensClone/src/app/features/overlay/overlay.component.css) - Position rules for absolute alignment over the camera viewport.
 
 ## Overlay Rendering
-- An Angular `effect` automatically triggers when `width`, `height`, or `PipelineService.state` changes.
+- An Angular `effect` automatically triggers when `width`, `height`, `PipelineService.state`, or `I18nService.activeLocale` changes.
 - **Bounding Boxes**: When `debugSettings.boundingBoxes` is active, draws green bounding rectangles and recognized text/price labels.
 - **Line Groupings**: When `debugSettings.lineGrouping` is active, calls `renderLineGroupings` on `BoundingBoxRendererService` to render cyan dashed bounding boxes for grouped text lines.
