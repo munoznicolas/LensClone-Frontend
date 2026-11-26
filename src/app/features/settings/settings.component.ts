@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../services/settings/settings.service';
 import { LocationService, LocationAccuracyMode } from '../../services/location/location.service';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-settings',
@@ -16,6 +17,7 @@ export class SettingsComponent {
 
   readonly settingsService = inject(SettingsService);
   readonly locationService = inject(LocationService);
+  readonly authService = inject(AuthService);
 
   readonly isOpen = signal(false);
   readonly savedNotification = signal(false);
@@ -45,7 +47,7 @@ export class SettingsComponent {
       timeWindowDays: Number(this.timeWindowDays),
       radiusKm: Number(this.radiusKm),
       tolerancePercent: Number(this.tolerancePercent),
-      backendApiUrl: this.backendApiUrl,
+      ...(this.authService.isAdmin() ? { backendApiUrl: this.backendApiUrl } : {}),
     });
     this.locationService.setAccuracyMode(this.locationAccuracyMode);
     this.closeModal();

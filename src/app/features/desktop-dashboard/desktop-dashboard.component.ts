@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DebugComponent } from '../debug/debug.component';
 import { SettingsComponent } from '../settings/settings.component';
@@ -40,9 +40,18 @@ export class DesktopDashboardComponent {
     { id: '3', product: 'Avocado 2-pack', price: '$4.20', confidence: 0.89, location: 'Store A', timestamp: '1 hour ago' },
   ]);
 
-  constructor(readonly deviceService: DeviceService) {}
+  constructor(readonly deviceService: DeviceService) {
+    effect(() => {
+      if (this.activeTab() === 'debug' && !this.authService.isAdmin()) {
+        this.activeTab.set('management');
+      }
+    });
+  }
 
   setTab(tab: DesktopTab): void {
+    if (tab === 'debug' && !this.authService.isAdmin()) {
+      return;
+    }
     this.activeTab.set(tab);
   }
 

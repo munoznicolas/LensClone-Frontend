@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy, signal, Optional } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, Optional, inject } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { LensComponent } from '../lens/lens.component';
+import { AuthService } from '../../services/auth/auth.service';
 import { PipelineService } from '../../services/pipeline/pipeline.service';
 import { DebugSettings } from './debug-settings';
 import { CropCanvasComponent } from './crop-canvas.component';
@@ -26,6 +27,8 @@ interface DebugControl {
   styleUrl: './debug.component.css',
 })
 export class DebugComponent implements OnInit, OnDestroy {
+  readonly authService = inject(AuthService);
+
   readonly controls: DebugControl[] = [
     { key: 'boundingBoxes', label: 'Bounding Boxes' },
     { key: 'croppedRegions', label: 'Cropped Regions' },
@@ -66,6 +69,9 @@ export class DebugComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    if (!this.authService.isAdmin()) {
+      return;
+    }
     this.updateMemoryStats();
     if (typeof window !== 'undefined') {
       this.intervalId = window.setInterval(() => this.updateMemoryStats(), 1000);

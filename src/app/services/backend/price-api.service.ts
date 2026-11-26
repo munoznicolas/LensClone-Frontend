@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, of, firstValueFrom } from 'rxjs';
 import { SettingsService } from '../settings/settings.service';
 import { GpsCoordinates, ProductOffer } from '../text-detection/types';
@@ -107,7 +107,10 @@ export class PriceApiService {
     };
 
     return this.http.post<PriceSubmissionResponse>(url, payload).pipe(
-      catchError(async () => {
+      catchError(async (err: unknown) => {
+        if (err instanceof HttpErrorResponse && (err.status === 401 || err.status === 403)) {
+          return null;
+        }
         await this.enqueueOfflineSubmission(url, payload);
         return {
           success: true,

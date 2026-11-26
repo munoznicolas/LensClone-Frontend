@@ -31,14 +31,16 @@
         <span>Shopping Budget</span>
       </button>
 
-      <button 
-        type="button" 
-        class="nav-tab" 
-        [class.active]="activeTab() === 'debug'"
-        (click)="setTab('debug')">
-        <span class="material-symbols-rounded">bug_report</span>
-        <span>Diagnostics</span>
-      </button>
+      @if (authService.isAdmin()) {
+        <button 
+          type="button" 
+          class="nav-tab" 
+          [class.active]="activeTab() === 'debug'"
+          (click)="setTab('debug')">
+          <span class="material-symbols-rounded">bug_report</span>
+          <span>Diagnostics</span>
+        </button>
+      }
 
       <button 
         type="button" 
@@ -109,6 +111,9 @@
 
   <!-- Main Content Area -->
   <main class="dashboard-content">
+    @if (authService.authError(); as err) {
+      <div class="auth-error-banner" role="alert">{{ err }}</div>
+    }
     @switch (activeTab()) {
       @case ('management') {
         <!-- Top Metrics Cards -->
@@ -165,9 +170,11 @@
       }
 
       @case ('debug') {
-        <section class="tab-panel">
-          <app-debug />
-        </section>
+        @if (authService.isAdmin()) {
+          <section class="tab-panel">
+            <app-debug />
+          </section>
+        }
       }
 
       @case ('settings') {

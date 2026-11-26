@@ -69,6 +69,7 @@ describe('LensComponent', () => {
       state: stateSignal,
       detections: computed(() => stateSignal().detections),
       offers: computed(() => stateSignal().offers ?? []),
+      groupedLines: computed(() => []),
       debugSettings: signal({
         croppedRegions: true,
         boundingBoxes: true,
@@ -90,6 +91,8 @@ describe('LensComponent', () => {
     authServiceMock = {
       currentUser: userSignal,
       isAuthenticated: computed(() => userSignal() !== null),
+      isAdmin: signal(false),
+      authError: signal(null),
       signInWithGoogle: vi.fn().mockImplementation(() => {
         userSignal.set({ id: '123', name: 'Test User', email: 'test@gmail.com' });
       }),
@@ -104,6 +107,14 @@ describe('LensComponent', () => {
     };
 
     const mockContext = {
+      clearRect: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      strokeRect: vi.fn(),
+      fillRect: vi.fn(),
+      fillText: vi.fn(),
+      setLineDash: vi.fn(),
+      measureText: vi.fn().mockReturnValue({ width: 50 }),
       drawImage: vi.fn(),
       getImageData: vi.fn().mockImplementation((x: number, y: number, w: number, h: number) => {
         return new ImageData(new Uint8ClampedArray(Math.max(1, w * h * 4)), w || 1, h || 1);
@@ -225,5 +236,17 @@ describe('LensComponent', () => {
 
     expect(priceApiServiceMock.comparePrice).toHaveBeenCalledWith('YERBA MATE', 2400, mockCoordinates);
     expect(priceApiServiceMock.submitPrice).toHaveBeenCalledWith(testOffer, mockCoordinates);
+  });
+
+  it('should not render Debug Diagnostics button in overflow menu', () => {
+    component.openModal('menu');
+    fixture.detectChanges();
+
+    const menuEl = (fixture.nativeElement as HTMLElement).querySelector('.overflow-menu');
+    expect(menuEl).not.toBeNull();
+    expect(menuEl?.textContent).not.toContain('Debug Diagnostics');
+
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 });

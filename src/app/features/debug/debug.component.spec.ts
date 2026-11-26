@@ -7,6 +7,7 @@ import { AlgorithmProfilerService } from '../../services/pipeline/profiling/algo
 import { AlgorithmMicroBenchmarksService } from '../../services/pipeline/profiling/algorithm-micro-benchmarks.service';
 import { PipelineValidationService } from '../../services/pipeline/validation/pipeline-validation.service';
 import { BaselineManagerService } from '../../services/pipeline/validation/baseline-manager.service';
+import { AuthService } from '../../services/auth/auth.service';
 import { computed, signal } from '@angular/core';
 
 describe('DebugComponent', () => {
@@ -17,6 +18,7 @@ describe('DebugComponent', () => {
   let microbenchMock: any;
   let validatorMock: any;
   let baselineManagerMock: any;
+  let isAdminSignal: ReturnType<typeof signal<boolean>>;
 
   beforeEach(async () => {
     const mockContext = {
@@ -138,9 +140,20 @@ describe('DebugComponent', () => {
       saveBaseline: vi.fn(),
     };
 
+    isAdminSignal = signal(true);
+
     await TestBed.configureTestingModule({
       imports: [DebugComponent],
       providers: [
+        {
+          provide: AuthService,
+          useValue: {
+            isAdmin: isAdminSignal.asReadonly(),
+            isAuthenticated: isAdminSignal.asReadonly(),
+            currentUser: signal(null),
+            authError: signal(null),
+          },
+        },
         { provide: PipelineService, useValue: pipelineServiceMock },
         { provide: CameraService, useValue: cameraServiceMock },
         { provide: AlgorithmProfilerService, useValue: profilerMock },
@@ -236,5 +249,13 @@ describe('DebugComponent', () => {
     expect(microbenchMock.runAllBenchmarks).toHaveBeenCalled();
     expect(component.microBenchResults().length).toBe(1);
     expect(component.microBenchResults()[0].id).toBe('weighted-levenshtein');
+  });
+
+  it('should not render debug studio for non-admin users', () => {
+    isAdminSignal.set(false);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.debug-studio')).toBeNull();
   });
 });

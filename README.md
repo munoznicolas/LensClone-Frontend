@@ -71,7 +71,7 @@ npm start
 
 Navigate to `http://localhost:4200/` in your browser and allow camera access when prompted.
 
-For first-time backend and Auth0 configuration, see [First-Time Configuration Runbook](docs/FIRST_TIME_SETUP_RUNBOOK.md).
+For first-time backend and Google OAuth configuration, see [First-Time Configuration Runbook](docs/FIRST_TIME_SETUP_RUNBOOK.md).
 
 ---
 

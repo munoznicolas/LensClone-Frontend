@@ -2,9 +2,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  EventEmitter,
   OnDestroy,
-  Output,
   signal,
   ViewChild,
 } from '@angular/core';
@@ -42,8 +40,6 @@ export type ModalType =
 export class LensComponent implements AfterViewInit, OnDestroy {
   @ViewChild('video', { static: true })
   private videoElement!: ElementRef<HTMLVideoElement>;
-
-  @Output() openDebug = new EventEmitter<void>();
 
   readonly videoWidth = signal(0);
   readonly videoHeight = signal(0);
@@ -353,11 +349,6 @@ export class LensComponent implements AfterViewInit, OnDestroy {
   clearHistory(): void {
     this.historyService.clearHistory();
     this.selectedHistoryItem.set(null);
-  }
-
-  triggerDebug(): void {
-    this.closeModal();
-    this.openDebug.emit();
   }
 
   private runDetectionLoop = async () => {

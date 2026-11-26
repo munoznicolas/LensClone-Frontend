@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { PriceApiService, PriceRating } from './price-api.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { SettingsService } from '../settings/settings.service';
 import { IndexedDbService } from '../storage/indexed-db.service';
 import { AuthService } from '../auth/auth.service';
 import { GpsCoordinates, ProductOffer } from '../text-detection/types';
 import { TestBed } from '@angular/core/testing';
-import { of, firstValueFrom } from 'rxjs';
+import { of, throwError, firstValueFrom } from 'rxjs';
 import { signal } from '@angular/core';
 
 describe('PriceApiService', () => {
@@ -146,5 +146,31 @@ describe('PriceApiService', () => {
         deviceId: 'usr_google_user_777',
       })
     );
+  });
+
+  it('should NOT queue offline submission when backend returns 401 or 403', async () => {
+    authMock.isAuthenticated.set(true);
+    authMock.currentUser.set({
+      id: 'google_user_777',
+      name: 'Alex Rivera',
+      email: 'alex@gmail.com',
+    });
+
+    const offer: ProductOffer = {
+      id: 'off-3',
+      product: 'PAN 1KG',
+      price: '$1500',
+      boundingBox: { x: 0, y: 0, width: 100, height: 50 },
+      confidence: 0.95,
+      detections: [],
+    };
+
+    for (const status of [401, 403]) {
+      httpMock.post.mockReturnValue(throwError(() => new HttpErrorResponse({ status })));
+      const result = await firstValueFrom(service.submitPrice(offer, mockCoords));
+      expect(result).toBeNull();
+    }
+
+    expect(idbMock.put).not.toHaveBeenCalled();
   });
 });

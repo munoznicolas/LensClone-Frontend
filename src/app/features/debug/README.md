@@ -10,6 +10,7 @@ The `Debug` feature provides UI controls and diagnostics panels to visualize int
 - [debug-settings.ts](file:///d:/Repositories/PoC-LensClone/src/app/features/debug/debug-settings.ts) - Interface definition specifying active debug overlay stage flags (`croppedRegions`, `boundingBoxes`, `recognizedText`, `canonicalText`, `lineGrouping`).
 
 ## Key Capabilities
+- **Admin-Only Access Control**: Guarded by `AuthService.isAdmin()` (verified against the backend `/api/v1/auth/me` endpoint) in both `DesktopDashboardComponent` and `DebugComponent` (`@if (authService.isAdmin())` and `ngOnInit` guard).
 - **Intermediate Crop Rendering**: Monitors `PipelineService.state()` via Angular `effect` and draws raw cropped text regions onto individual `<app-crop-canvas>` elements.
 - **Stage Metrics & FPS**: Displays real-time inference time breakdowns (DBNet Detection, Bounding Box Filtering, Tracking, Cropping, CRNN Recognition, Line Grouping) and frames per second.
 - **Profiler & Validation Studio**:

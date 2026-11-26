@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
+    "start": "node scripts/ng-with-env.js serve",
+    "build": "node scripts/ng-with-env.js build",
+    "watch": "node scripts/ng-with-env.js build --watch --configuration development",
     "test": "ng test --isolate=true",
     "test:benchmark": "ng test --include=**/grocery-benchmark.local.spec.ts",
     "benchmark:parallel": "node scripts/run-parallel-benchmark.js",

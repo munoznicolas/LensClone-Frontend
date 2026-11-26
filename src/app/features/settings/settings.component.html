@@ -57,15 +57,17 @@
       </div>
 
       <!-- Backend API URL -->
-      <div class="form-group">
-        <label for="inline-apiUrl">Backend API Base URL</label>
-        <input
-          type="text"
-          id="inline-apiUrl"
-          [(ngModel)]="backendApiUrl"
-          placeholder="http://localhost:5000/api/v1/prices"
-        />
-      </div>
+      @if (authService.isAdmin()) {
+        <div class="form-group">
+          <label for="inline-apiUrl">Backend API Base URL</label>
+          <input
+            type="text"
+            id="inline-apiUrl"
+            [(ngModel)]="backendApiUrl"
+            placeholder="http://localhost:5000/api/v1/prices"
+          />
+        </div>
+      }
     </div>
 
     <div class="settings-footer">
@@ -142,15 +144,17 @@
           </div>
 
           <!-- Backend API URL -->
-          <div class="form-group">
-            <label for="apiUrl">Backend API Base URL</label>
-            <input
-              type="text"
-              id="apiUrl"
-              [(ngModel)]="backendApiUrl"
-              placeholder="http://localhost:5000/api/v1/prices"
-            />
-          </div>
+          @if (authService.isAdmin()) {
+            <div class="form-group">
+              <label for="apiUrl">Backend API Base URL</label>
+              <input
+                type="text"
+                id="apiUrl"
+                [(ngModel)]="backendApiUrl"
+                placeholder="http://localhost:5000/api/v1/prices"
+              />
+            </div>
+          }
         </div>
 
         <div class="modal-footer">

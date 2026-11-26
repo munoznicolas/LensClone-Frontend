@@ -24,6 +24,8 @@ jobs:
         run: npm ci
 
       - name: Build application
+        env:
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
         run: npm run build
 
       - name: Run unit tests
