@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { afterEach, describe, it, expect, beforeEach } from 'vitest';
 import {
   BaselineManagerService,
   FALLBACK_GOLDEN_BASELINE,
@@ -14,6 +14,10 @@ describe('BaselineManagerService', () => {
       providers: [BaselineManagerService],
     });
     service = TestBed.inject(BaselineManagerService);
+    await service.resetToDefault();
+  });
+
+  afterEach(async () => {
     await service.resetToDefault();
   });
 
