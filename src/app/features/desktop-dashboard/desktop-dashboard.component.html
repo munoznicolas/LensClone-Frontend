@@ -146,49 +146,10 @@
     }
     @switch (activeTab()) {
       @case ('management') {
-        <!-- Top Metrics Cards -->
-        <section class="metrics-grid">
-          <div class="card metric-card">
-            <div class="metric-header">
-              <span class="material-symbols-rounded metric-icon blue">analytics</span>
-              <span class="metric-title">{{ i18n.t('dashboard.metrics.scannedTitle') }}</span>
-            </div>
-            <div class="metric-value">{{ i18n.formatNumber(1482, 0) }}</div>
-            <div class="metric-sub text-positive">{{ i18n.t('dashboard.metrics.scannedSub') }}</div>
-          </div>
-
-          <div class="card metric-card">
-            <div class="metric-header">
-              <span class="material-symbols-rounded metric-icon green">check_circle</span>
-              <span class="metric-title">{{ i18n.t('dashboard.metrics.confidenceTitle') }}</span>
-            </div>
-            <div class="metric-value">{{ i18n.formatNumber(94.8, 1) }}%</div>
-            <div class="metric-sub">{{ i18n.t('dashboard.metrics.confidenceSub') }}</div>
-          </div>
-
-          <div class="card metric-card">
-            <div class="metric-header">
-              <span class="material-symbols-rounded metric-icon purple">speed</span>
-              <span class="metric-title">{{ i18n.t('dashboard.metrics.latencyTitle') }}</span>
-            </div>
-            <div class="metric-value">42 ms</div>
-            <div class="metric-sub">{{ i18n.t('dashboard.metrics.latencySub') }}</div>
-          </div>
-
-          <div class="card metric-card">
-            <div class="metric-header">
-              <span class="material-symbols-rounded metric-icon amber">store</span>
-              <span class="metric-title">{{ i18n.t('dashboard.metrics.storesTitle') }}</span>
-            </div>
-            <div class="metric-value">6</div>
-            <div class="metric-sub">{{ i18n.t('dashboard.metrics.storesSub') }}</div>
-          </div>
-        </section>
-
         <!-- Main Dashboard View: Leaflet Price Heatmap & Analytics -->
         <section class="management-grid">
           <div class="card analytics-card">
-            <app-price-heatmap />
+            <app-price-heatmap (requestLocation)="openLocationModal()" />
           </div>
         </section>
       }

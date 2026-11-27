@@ -93,6 +93,13 @@ describe('DesktopDashboardComponent', () => {
     vi.restoreAllMocks();
   });
 
+  it('should not render hardcoded KPI metric cards on management tab', () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.metrics-grid')).toBeNull();
+    expect(el.textContent).not.toContain('1,482');
+    expect(el.textContent).not.toContain('94.8%');
+  });
+
   it('should hide Diagnostics tab and block setTab("debug") for guest and non-admin users', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).not.toContain('Diagnostics');

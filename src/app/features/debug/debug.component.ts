@@ -146,32 +146,9 @@ export class DebugComponent implements OnInit, OnDestroy {
       this.profileReport.set(report);
       this.profilingStatus.set(`Session complete: ${report.iterations} iterations in ${report.totalDurationMs} ms`);
 
-      // Auto-validate against baseline if available
+      // Auto-validate against baseline if available (performance/memory only; no fabricated OCR metrics)
       if (this.validator && this.activeBaseline()) {
-        const mockDatasetReport = {
-          timestamp: new Date().toISOString(),
-          totalSamplesEvaluated: 1,
-          overallDetection: {
-            truePositives: 10,
-            falsePositives: 1,
-            falseNegatives: 1,
-            precision: 0.91,
-            recall: 0.90,
-            f1Score: 0.905,
-            averageIoU: 0.80,
-          },
-          overallRecognition: {
-            totalSamples: 10,
-            exactMatches: 8,
-            exactMatchRatio: 0.83,
-            characterErrorRate: 0.07,
-            wordErrorRate: 0.11,
-            averageEditDistance: 1,
-          },
-          averagePipelineLatencyMs: report.averagePipelineLatencyMs,
-          sampleResults: [],
-        };
-        const valReport = this.validator.validate(mockDatasetReport, report, this.activeBaseline()!);
+        const valReport = this.validator.validate(null, report, this.activeBaseline()!);
         this.validationReport.set(valReport);
       }
     } catch (err) {
@@ -199,31 +176,12 @@ export class DebugComponent implements OnInit, OnDestroy {
   saveAsNewBaseline(): void {
     if (!this.baselineManager || !this.profileReport()) return;
     const rep = this.profileReport()!;
-    const mockDataset = {
-      timestamp: new Date().toISOString(),
-      totalSamplesEvaluated: 1,
-      overallDetection: {
-        truePositives: 10,
-        falsePositives: 1,
-        falseNegatives: 1,
-        precision: 0.91,
-        recall: 0.90,
-        f1Score: 0.905,
-        averageIoU: 0.80,
-      },
-      overallRecognition: {
-        totalSamples: 10,
-        exactMatches: 8,
-        exactMatchRatio: 0.83,
-        characterErrorRate: 0.07,
-        wordErrorRate: 0.11,
-        averageEditDistance: 1,
-      },
-      averagePipelineLatencyMs: rep.averagePipelineLatencyMs,
-      sampleResults: [],
-    };
-
-    const newBase = this.baselineManager.createBaselineFromReports(mockDataset, rep, 'User-saved Profiler Baseline');
+    const newBase = this.baselineManager.createBaselineFromReports(
+      null,
+      rep,
+      'User-saved Profiler Baseline',
+      this.activeBaseline() ?? undefined,
+    );
     this.baselineManager.saveBaseline(newBase);
     this.activeBaseline.set(newBase);
   }

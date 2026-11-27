@@ -659,3 +659,56 @@
   font-size: 0.72rem;
   color: #94a3b8;
 }
+
+.empty-toolbar-note {
+  font-size: 0.84rem;
+  color: #94a3b8;
+}
+
+.stores-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.75rem;
+  padding: 2rem 1rem;
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+}
+
+.stores-empty-state .empty-icon {
+  font-size: 2.25rem;
+  color: #64748b;
+}
+
+.stores-empty-state p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.enable-location-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.enable-location-btn:hover {
+  background: #1d4ed8;
+}
+
+.enable-location-btn .material-symbols-rounded {
+  font-size: 1rem;
+}

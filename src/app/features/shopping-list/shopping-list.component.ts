@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ShoppingListService, ShoppingListItem } from '../../services/shopping-list/shopping-list.service';
@@ -18,14 +18,6 @@ export class ShoppingListComponent {
   readonly newItemQty = signal(1);
   readonly newItemPrice = signal<number | null>(null);
 
-  readonly presets = computed(() => [
-    { name: this.i18n.t('shoppingList.presets.milk'), qty: 1 },
-    { name: this.i18n.t('shoppingList.presets.eggs'), qty: 1 },
-    { name: this.i18n.t('shoppingList.presets.bread'), qty: 1 },
-    { name: this.i18n.t('shoppingList.presets.coffee'), qty: 1 },
-    { name: this.i18n.t('shoppingList.presets.bananas'), qty: 1 },
-  ]);
-
   constructor(readonly shoppingList: ShoppingListService) {}
 
   addItem(): void {
@@ -41,10 +33,6 @@ export class ShoppingListComponent {
     this.newItemName.set('');
     this.newItemQty.set(1);
     this.newItemPrice.set(null);
-  }
-
-  addPreset(name: string, qty: number): void {
-    this.shoppingList.addItem(name, qty);
   }
 
   updateQty(item: ShoppingListItem, delta: number): void {

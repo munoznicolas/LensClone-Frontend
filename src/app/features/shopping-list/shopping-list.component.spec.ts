@@ -20,8 +20,12 @@ describe('ShoppingListComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create shopping list component', () => {
+  it('should create shopping list component with empty state and no quick-add presets', () => {
     expect(component).toBeTruthy();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.presets-section')).toBeNull();
+    expect(el.querySelector('.empty-state')).not.toBeNull();
+    expect(service.itemCount()).toBe(0);
   });
 
   it('should add item from form inputs', () => {

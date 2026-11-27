@@ -128,12 +128,13 @@ export class BaselineManagerService {
    * Builds a new GoldenBaseline snapshot from benchmark dataset evaluation and profiling reports.
    */
   createBaselineFromReports(
-    datasetReport: BenchmarkSummaryReport,
+    datasetReport: BenchmarkSummaryReport | null | undefined,
     profileReport?: ProfilingSessionReport,
     description = 'Custom Baseline snapshot',
+    existingBaseline?: GoldenBaseline,
   ): GoldenBaseline {
-    const det = datasetReport.overallDetection;
-    const rec = datasetReport.overallRecognition;
+    const det = datasetReport?.overallDetection;
+    const rec = datasetReport?.overallRecognition;
 
     const stageTimings: Record<string, number> = {};
     if (profileReport?.stageMetrics) {
@@ -147,21 +148,25 @@ export class BaselineManagerService {
       createdAt: new Date().toISOString(),
       description,
       metrics: {
-        detection: {
-          precision: det ? Number(det.precision.toFixed(3)) : 0.9,
-          recall: det ? Number(det.recall.toFixed(3)) : 0.88,
-          f1Score: det ? Number(det.f1Score.toFixed(3)) : 0.89,
-          averageIoU: det ? Number(det.averageIoU.toFixed(3)) : 0.78,
-        },
-        recognition: {
-          exactMatchRatio: rec ? Number(rec.exactMatchRatio.toFixed(3)) : 0.82,
-          characterErrorRate: rec ? Number(rec.characterErrorRate.toFixed(3)) : 0.08,
-          wordErrorRate: rec ? Number(rec.wordErrorRate.toFixed(3)) : 0.12,
-        },
+        detection: det
+          ? {
+              precision: Number(det.precision.toFixed(3)),
+              recall: Number(det.recall.toFixed(3)),
+              f1Score: Number(det.f1Score.toFixed(3)),
+              averageIoU: Number(det.averageIoU.toFixed(3)),
+            }
+          : existingBaseline?.metrics.detection ?? FALLBACK_GOLDEN_BASELINE.metrics.detection,
+        recognition: rec
+          ? {
+              exactMatchRatio: Number(rec.exactMatchRatio.toFixed(3)),
+              characterErrorRate: Number(rec.characterErrorRate.toFixed(3)),
+              wordErrorRate: Number(rec.wordErrorRate.toFixed(3)),
+            }
+          : existingBaseline?.metrics.recognition ?? FALLBACK_GOLDEN_BASELINE.metrics.recognition,
         performance: {
           averagePipelineLatencyMs: profileReport
             ? Number(profileReport.averagePipelineLatencyMs.toFixed(1))
-            : Number(datasetReport.averagePipelineLatencyMs.toFixed(1)),
+            : Number((datasetReport?.averagePipelineLatencyMs ?? 0).toFixed(1)),
           fps: profileReport ? Number(profileReport.fps.toFixed(1)) : 20.0,
           stageTimingsMs: Object.keys(stageTimings).length > 0 ? stageTimings : undefined,
         },

@@ -229,7 +229,7 @@ describe('DebugComponent', () => {
     vi.unstubAllGlobals();
   });
 
-  it('should run profiling session and update profiling signals', async () => {
+  it('should run profiling session and validate performance without mock dataset metrics', async () => {
     component.activeTab.set('profiler');
     await component.runProfilingSession();
     fixture.detectChanges();
@@ -237,8 +237,27 @@ describe('DebugComponent', () => {
     expect(profilerMock.profilePipeline).toHaveBeenCalled();
     expect(component.profileReport()).not.toBeNull();
     expect(component.profileReport()?.bottleneckStage).toBe('detector');
-    expect(validatorMock.validate).toHaveBeenCalled();
+    expect(validatorMock.validate).toHaveBeenCalledWith(
+      null,
+      component.profileReport(),
+      component.activeBaseline(),
+    );
     expect(component.validationReport()?.overallPassed).toBe(true);
+  });
+
+  it('should save baseline using real profile report and active baseline without mock dataset', async () => {
+    component.activeTab.set('profiler');
+    await component.runProfilingSession();
+    const existing = component.activeBaseline();
+    component.saveAsNewBaseline();
+
+    expect(baselineManagerMock.createBaselineFromReports).toHaveBeenCalledWith(
+      null,
+      component.profileReport(),
+      'User-saved Profiler Baseline',
+      existing,
+    );
+    expect(baselineManagerMock.saveBaseline).toHaveBeenCalled();
   });
 
   it('should run micro-benchmarks and populate micro-bench results', async () => {

@@ -1,9 +1,11 @@
-import { Component, signal, computed, ElementRef, ViewChild, AfterViewInit, OnDestroy, effect, inject } from '@angular/core';
+import { Component, signal, computed, ElementRef, ViewChild, AfterViewInit, OnDestroy, effect, inject, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
-import { HeatmapService, StoreGrocerySummary, StoreLocation } from '../../../services/heatmap/heatmap.service';
+import { HeatmapService, StoreGrocerySummary } from '../../../services/heatmap/heatmap.service';
 import { ShoppingListService, ShoppingListItem } from '../../../services/shopping-list/shopping-list.service';
+import { LocationService } from '../../../services/location/location.service';
+import { SettingsService } from '../../../services/settings/settings.service';
 import { I18nService } from '../../../services/i18n/i18n.service';
 import { TranslationKey } from '../../../services/i18n/translations.en-us';
 
@@ -17,17 +19,6 @@ const CATEGORY_TRANSLATION_KEYS: Record<string, TranslationKey> = {
   Pantry: 'heatmap.category.Pantry',
 };
 
-const PRODUCT_TRANSLATION_KEYS: Record<string, TranslationKey> = {
-  p1: 'heatmap.product.p1',
-  p2: 'heatmap.product.p2',
-  p3: 'heatmap.product.p3',
-  p4: 'heatmap.product.p4',
-  p5: 'heatmap.product.p5',
-  p6: 'heatmap.product.p6',
-  p7: 'heatmap.product.p7',
-  p8: 'heatmap.product.p8',
-};
-
 @Component({
   selector: 'app-price-heatmap',
   standalone: true,
@@ -38,16 +29,22 @@ const PRODUCT_TRANSLATION_KEYS: Record<string, TranslationKey> = {
 export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef<HTMLDivElement>;
 
+  readonly requestLocation = output<void>();
+
   readonly i18n = inject(I18nService);
+  readonly locationService = inject(LocationService);
+  readonly settingsService = inject(SettingsService);
   readonly activeMode = signal<HeatmapMode>('groceryList');
-  readonly selectedProductId = signal<string>('p1');
-  readonly selectedCategoryName = signal<string>('Dairy');
+  readonly selectedProductId = signal<string>('');
+  readonly selectedCategoryName = signal<string>('');
   readonly selectedStoreId = signal<string | null>(null);
 
   // Leaflet Map & Layer References
   private map?: L.Map;
   private storeMarkersGroup: L.LayerGroup = L.layerGroup();
   private userRadiusGroup: L.LayerGroup = L.layerGroup();
+  private lastFetchKey: string | null = null;
+  private lastCenteredKey: string | null = null;
 
   // Computations
   readonly shoppingItems = computed(() => this.shoppingListService.items());
@@ -55,12 +52,18 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
   readonly productCatalog = computed(() => this.heatmapService.productCatalog());
 
   readonly activeProduct = computed(() => {
-    return this.productCatalog().find((p) => p.id === this.selectedProductId()) || this.productCatalog()[0];
+    const catalog = this.productCatalog();
+    if (catalog.length === 0) return undefined;
+    return catalog.find((p) => p.id === this.selectedProductId()) || catalog[0];
+  });
+
+  readonly activeCategory = computed(() => {
+    return this.selectedCategoryName() || this.categories()[0] || '';
   });
 
   readonly filteredCatalogByCategory = computed(() => {
-    const cat = this.selectedCategoryName();
-    return this.productCatalog().filter((p) => p.category === cat);
+    const cat = this.activeCategory();
+    return cat ? this.productCatalog().filter((p) => p.category === cat) : [];
   });
 
   // Calculate store scores based on active mode
@@ -73,6 +76,7 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
 
     if (mode === 'productFilter') {
       const prod = this.activeProduct();
+      if (!prod) return [];
       const syntheticItems: ShoppingListItem[] = [
         {
           id: 'filter_item',
@@ -86,6 +90,7 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
 
     // Category Filter Mode
     const catProds = this.filteredCatalogByCategory();
+    if (catProds.length === 0) return [];
     const categorySyntheticItems: ShoppingListItem[] = catProds.map((p) => ({
       id: `cat_${p.id}`,
       name: p.productName,
@@ -105,17 +110,53 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
     readonly heatmapService: HeatmapService,
     readonly shoppingListService: ShoppingListService
   ) {
-    // Angular signal effect to sync map overlays with state and locale changes
+    // Auto-start GPS tracking if permission was already granted
+    effect(() => {
+      if (
+        this.locationService.permissionStatus() === 'granted' &&
+        !this.locationService.isTracking() &&
+        !this.locationService.coordinates()
+      ) {
+        this.locationService.startTracking();
+      }
+    });
+
+    // Fetch live stores from backend whenever GPS coordinates or radius change
+    effect(() => {
+      const coords = this.locationService.coordinates();
+      const radiusKm = this.settingsService.radiusKm();
+      const apiUrl = this.settingsService.backendApiUrl();
+      if (!coords) {
+        this.lastFetchKey = null;
+        return;
+      }
+
+      const key = `${coords.latitude},${coords.longitude},${radiusKm},${apiUrl}`;
+      if (key === this.lastFetchKey) return;
+      this.lastFetchKey = key;
+      this.heatmapService.fetchSpatialHeatmap(coords.latitude, coords.longitude, radiusKm);
+    });
+
+    // Angular signal effect to sync map overlays with state, location, and locale changes
     effect(() => {
       this.i18n.activeLocale();
+      const coords = this.locationService.coordinates();
+      const radiusKm = this.settingsService.radiusKm();
       const summaries = this.storeSummaries();
       const selectedId = this.selectedStoreId();
 
       if (this.map) {
-        this.renderUserLocationAndRadius(
-          this.heatmapService.CENTER_LAT,
-          this.heatmapService.CENTER_LNG,
-        );
+        if (coords) {
+          const coordKey = `${coords.latitude},${coords.longitude}`;
+          if (coordKey !== this.lastCenteredKey) {
+            this.lastCenteredKey = coordKey;
+            this.map.setView([coords.latitude, coords.longitude], 12);
+          }
+          this.renderUserLocationAndRadius(coords.latitude, coords.longitude, radiusKm);
+        } else {
+          this.lastCenteredKey = null;
+          this.userRadiusGroup.clearLayers();
+        }
         this.renderMapLayers(summaries, selectedId);
       }
     });
@@ -135,12 +176,14 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
   private initLeafletMap(): void {
     if (!this.mapContainer || typeof window === 'undefined') return;
 
-    const centerLat = this.heatmapService.CENTER_LAT;
-    const centerLng = this.heatmapService.CENTER_LNG;
+    const coords = this.locationService.coordinates();
+    const centerLat = coords ? coords.latitude : 0;
+    const centerLng = coords ? coords.longitude : 0;
+    const initialZoom = coords ? 12 : 2;
 
     this.map = L.map(this.mapContainer.nativeElement, {
       center: [centerLat, centerLng],
-      zoom: 12,
+      zoom: initialZoom,
       zoomControl: true,
       attributionControl: false,
     });
@@ -155,7 +198,10 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
     this.userRadiusGroup.addTo(this.map);
 
     // Initial layer render
-    this.renderUserLocationAndRadius(centerLat, centerLng);
+    if (coords) {
+      this.lastCenteredKey = `${coords.latitude},${coords.longitude}`;
+      this.renderUserLocationAndRadius(coords.latitude, coords.longitude, this.settingsService.radiusKm());
+    }
     this.renderMapLayers(this.storeSummaries(), this.selectedStoreId());
 
     // Invalidate size after init to ensure full canvas fit
@@ -164,12 +210,11 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
     }, 200);
   }
 
-  private renderUserLocationAndRadius(lat: number, lng: number): void {
+  private renderUserLocationAndRadius(lat: number, lng: number, radiusKm: number): void {
     this.userRadiusGroup.clearLayers();
 
-    // 10km radius circle
     const radiusCircle = L.circle([lat, lng], {
-      radius: 10000,
+      radius: radiusKm * 1000,
       color: '#3b82f6',
       weight: 1.5,
       dashArray: '6 6',
@@ -195,7 +240,7 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
     });
 
     const userMarker = L.marker([lat, lng], { icon: userMarkerIcon }).bindTooltip(
-      this.i18n.t('heatmap.map.userTooltip'),
+      this.i18n.t('heatmap.map.userTooltip', { radius: radiusKm }),
       {
         permanent: false,
         direction: 'top',
@@ -260,11 +305,6 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
   getCategoryLabel(category: string): string {
     const key = CATEGORY_TRANSLATION_KEYS[category];
     return key ? this.i18n.t(key) : category;
-  }
-
-  getProductLabel(productId: string, fallbackName: string): string {
-    const key = PRODUCT_TRANSLATION_KEYS[productId];
-    return key ? this.i18n.t(key) : fallbackName;
   }
 
   getChainLabel(chain: string): string {

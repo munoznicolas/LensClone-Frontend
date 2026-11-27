@@ -21,16 +21,20 @@ export class PipelineValidationService {
    * Validates a run against baseline metrics using specified or default thresholds.
    */
   validate(
-    datasetReport: BenchmarkSummaryReport,
+    datasetReport: BenchmarkSummaryReport | null | undefined,
     profileReport?: ProfilingSessionReport,
     baseline?: GoldenBaseline,
     thresholds: ValidationThresholds = DEFAULT_VALIDATION_THRESHOLDS,
   ): ValidationReport {
-    const base = baseline ?? this.baselineManager.createBaselineFromReports(datasetReport);
+    if (!datasetReport && !baseline) {
+      throw new Error('Cannot validate without a datasetReport or an existing baseline.');
+    }
+
+    const base = baseline ?? this.baselineManager.createBaselineFromReports(datasetReport, profileReport);
     const comparisons: MetricComparison[] = [];
 
     // --- 1. Detection Metrics Validation ---
-    const currDet = datasetReport.overallDetection;
+    const currDet = datasetReport?.overallDetection;
     const baseDet = base.metrics.detection;
 
     if (currDet && baseDet) {
@@ -95,7 +99,7 @@ export class PipelineValidationService {
     }
 
     // --- 2. Recognition Metrics Validation ---
-    const currRec = datasetReport.overallRecognition;
+    const currRec = datasetReport?.overallRecognition;
     const baseRec = base.metrics.recognition;
 
     if (currRec && baseRec) {
@@ -155,7 +159,8 @@ export class PipelineValidationService {
     }
 
     // --- 3. Performance Metrics Validation ---
-    const currLatency = profileReport?.averagePipelineLatencyMs ?? datasetReport.averagePipelineLatencyMs;
+    const currLatency =
+      profileReport?.averagePipelineLatencyMs ?? datasetReport?.averagePipelineLatencyMs ?? 0;
     const baseLatency = base.metrics.performance.averagePipelineLatencyMs;
 
     if (baseLatency > 0 && currLatency > 0) {

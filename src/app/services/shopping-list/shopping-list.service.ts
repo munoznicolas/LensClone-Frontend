@@ -12,42 +12,6 @@ export interface ShoppingListItem {
 
 const STORAGE_KEY = 'lensclone_shopping_list_v1';
 
-// Initial reference baseline prices for common items (USD)
-const BASELINE_PRICE_CATALOG: Record<string, number> = {
-  milk: 3.49,
-  leche: 3.49,
-  bread: 2.80,
-  pan: 2.80,
-  eggs: 3.99,
-  huevos: 3.99,
-  huevo: 3.99,
-  coffee: 7.50,
-  café: 7.50,
-  cafe: 7.50,
-  apples: 1.99,
-  manzanas: 1.99,
-  manzana: 1.99,
-  bananas: 0.89,
-  banana: 0.89,
-  cheese: 4.50,
-  queso: 4.50,
-  butter: 3.75,
-  manteca: 3.75,
-  yogurt: 2.20,
-  yogur: 2.20,
-  chicken: 6.99,
-  pollo: 6.99,
-  rice: 2.49,
-  arroz: 2.49,
-  pasta: 1.79,
-  fideos: 1.79,
-  cereal: 4.29,
-  water: 1.29,
-  agua: 1.29,
-  juice: 3.29,
-  jugo: 3.29,
-};
-
 @Injectable({
   providedIn: 'root',
 })
@@ -69,26 +33,17 @@ export class ShoppingListService {
     }, 0)
   );
 
-  constructor() {
-    // Populate default list if empty on first load
-    if (this._items().length === 0) {
-      this.addInitialSamples();
-    }
-  }
-
   addItem(name: string, quantity = 1, manualPrice?: number): ShoppingListItem {
     const trimmedName = name.trim();
     if (!trimmedName) {
       throw new Error(this.i18n?.t('shoppingList.error.emptyName') ?? 'Item name cannot be empty');
     }
 
-    const estimatedUnitPrice = this.estimateUnitPrice(trimmedName);
-
     const newItem: ShoppingListItem = {
       id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       name: trimmedName,
       quantity: Math.max(1, quantity),
-      estimatedUnitPrice,
+      estimatedUnitPrice: 0,
       manualUnitPrice: manualPrice !== undefined && manualPrice > 0 ? manualPrice : undefined,
     };
 
@@ -130,42 +85,6 @@ export class ShoppingListService {
     this.saveToStorage([]);
   }
 
-  estimateUnitPrice(name: string): number {
-    const normalized = name.toLowerCase();
-    for (const [key, price] of Object.entries(BASELINE_PRICE_CATALOG)) {
-      if (normalized.includes(key)) {
-        return price;
-      }
-    }
-    // Default estimate if not in sample catalog
-    return 3.50;
-  }
-
-  private addInitialSamples(): void {
-    const samples: ShoppingListItem[] = [
-      {
-        id: 'sample_1',
-        name: this.i18n?.t('shoppingList.samples.milk') ?? 'Organic Whole Milk 1L',
-        quantity: 2,
-        estimatedUnitPrice: 3.49,
-      },
-      {
-        id: 'sample_2',
-        name: this.i18n?.t('shoppingList.samples.eggs') ?? 'Large Brown Eggs 12-pack',
-        quantity: 1,
-        estimatedUnitPrice: 3.99,
-      },
-      {
-        id: 'sample_3',
-        name: this.i18n?.t('shoppingList.samples.bread') ?? 'Whole Wheat Bread',
-        quantity: 1,
-        estimatedUnitPrice: 2.80,
-      },
-    ];
-    this._items.set(samples);
-    this.saveToStorage(samples);
-  }
-
   private loadFromStorage(): ShoppingListItem[] {
     try {
       if (typeof localStorage === 'undefined' || !localStorage.getItem) {
@@ -174,7 +93,15 @@ export class ShoppingListService {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (!stored) return [];
       const parsed = JSON.parse(stored);
-      return Array.isArray(parsed) ? parsed : [];
+      if (!Array.isArray(parsed)) return [];
+      const cleaned = parsed.filter(
+        (item): item is ShoppingListItem =>
+          Boolean(item) && typeof item.id === 'string' && !item.id.startsWith('sample_'),
+      );
+      if (cleaned.length !== parsed.length) {
+        this.saveToStorage(cleaned);
+      }
+      return cleaned;
     } catch {
       return [];
     }

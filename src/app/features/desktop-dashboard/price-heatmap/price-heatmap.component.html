@@ -72,38 +72,46 @@
 
         @case ('productFilter') {
           <div class="filter-group">
-            <label for="productSelect">{{ i18n.t('heatmap.toolbar.selectProduct') }}</label>
-            <select
-              id="productSelect"
-              class="select-input"
-              [ngModel]="selectedProductId()"
-              (ngModelChange)="selectProduct($event)"
-            >
-              @for (prod of productCatalog(); track prod.id) {
-                <option [value]="prod.id">
-                  {{ getProductLabel(prod.id, prod.productName) }} ({{ getCategoryLabel(prod.category) }}) -
-                  {{ i18n.t('heatmap.toolbar.basePrice', { price: i18n.formatNumber(prod.basePrice, 2) }) }}
-                </option>
-              }
-            </select>
+            @if (productCatalog().length > 0) {
+              <label for="productSelect">{{ i18n.t('heatmap.toolbar.selectProduct') }}</label>
+              <select
+                id="productSelect"
+                class="select-input"
+                [ngModel]="activeProduct()?.id ?? ''"
+                (ngModelChange)="selectProduct($event)"
+              >
+                @for (prod of productCatalog(); track prod.id) {
+                  <option [value]="prod.id">
+                    {{ prod.productName }} ({{ getCategoryLabel(prod.category) }}) -
+                    {{ i18n.t('heatmap.toolbar.basePrice', { price: i18n.formatNumber(prod.basePrice, 2) }) }}
+                  </option>
+                }
+              </select>
+            } @else {
+              <span class="empty-toolbar-note">{{ i18n.t('heatmap.empty.noCatalogProducts') }}</span>
+            }
           </div>
         }
 
         @case ('categoryFilter') {
           <div class="filter-group">
-            <span class="label">{{ i18n.t('heatmap.toolbar.selectCategory') }}</span>
-            <div class="chip-list">
-              @for (cat of categories(); track cat) {
-                <button
-                  type="button"
-                  class="category-chip"
-                  [class.active]="selectedCategoryName() === cat"
-                  (click)="selectCategory(cat)"
-                >
-                  {{ getCategoryLabel(cat) }}
-                </button>
-              }
-            </div>
+            @if (categories().length > 0) {
+              <span class="label">{{ i18n.t('heatmap.toolbar.selectCategory') }}</span>
+              <div class="chip-list">
+                @for (cat of categories(); track cat) {
+                  <button
+                    type="button"
+                    class="category-chip"
+                    [class.active]="activeCategory() === cat"
+                    (click)="selectCategory(cat)"
+                  >
+                    {{ getCategoryLabel(cat) }}
+                  </button>
+                }
+              </div>
+            } @else {
+              <span class="empty-toolbar-note">{{ i18n.t('heatmap.empty.noCatalogCategories') }}</span>
+            }
           </div>
         }
       }
@@ -148,60 +156,91 @@
       </div>
 
       <div class="stores-list">
-        @for (store of storeSummaries(); track store.storeId) {
-          <div
-            class="store-card"
-            [class.highlight]="store.status === 'best'"
-            [class.selected]="selectedStoreId() === store.storeId"
-            (click)="selectStore(store.storeId)"
-          >
-            <div class="store-card-header">
-              <div class="name-badge-group">
-                <span class="status-indicator" [class]="store.status"></span>
-                <div class="title-sub">
-                  <span class="store-name">{{ store.storeName }}</span>
-                  <span class="store-address">{{ store.address }}</span>
+        @if (heatmapService.isLoading()) {
+          <div class="stores-empty-state">
+            <span class="material-symbols-rounded empty-icon">hourglass_top</span>
+            <p>{{ i18n.t('heatmap.empty.loading') }}</p>
+          </div>
+        } @else if (!locationService.coordinates()) {
+          <div class="stores-empty-state">
+            <span class="material-symbols-rounded empty-icon">location_off</span>
+            <p>{{ i18n.t('heatmap.empty.locationRequired') }}</p>
+            <button type="button" class="enable-location-btn" (click)="requestLocation.emit()">
+              <span class="material-symbols-rounded">my_location</span>
+              <span>{{ i18n.t('heatmap.empty.enableLocationBtn') }}</span>
+            </button>
+          </div>
+        } @else if (heatmapService.loadError()) {
+          <div class="stores-empty-state">
+            <span class="material-symbols-rounded empty-icon">cloud_off</span>
+            <p>{{ i18n.t('heatmap.empty.loadError') }}</p>
+          </div>
+        } @else if (activeMode() !== 'groceryList' && productCatalog().length === 0) {
+          <div class="stores-empty-state">
+            <span class="material-symbols-rounded empty-icon">inventory_2</span>
+            <p>{{ i18n.t('heatmap.empty.noCatalogData') }}</p>
+          </div>
+        } @else if (storeSummaries().length === 0) {
+          <div class="stores-empty-state">
+            <span class="material-symbols-rounded empty-icon">storefront</span>
+            <p>{{ i18n.t('heatmap.empty.noStoresFound') }}</p>
+          </div>
+        } @else {
+          @for (store of storeSummaries(); track store.storeId) {
+            <div
+              class="store-card"
+              [class.highlight]="store.status === 'best'"
+              [class.selected]="selectedStoreId() === store.storeId"
+              (click)="selectStore(store.storeId)"
+            >
+              <div class="store-card-header">
+                <div class="name-badge-group">
+                  <span class="status-indicator" [class]="store.status"></span>
+                  <div class="title-sub">
+                    <span class="store-name">{{ store.storeName }}</span>
+                    <span class="store-address">{{ store.address }}</span>
+                  </div>
+                </div>
+
+                @if (store.status === 'best') {
+                  <span class="best-badge">{{ i18n.t('heatmap.card.bestStore') }}</span>
+                }
+              </div>
+
+              <div class="store-card-body">
+                <div class="metric">
+                  <span class="label">
+                    @if (activeMode() === 'groceryList') {
+                      {{ i18n.t('heatmap.card.basketTotal') }}
+                    } @else {
+                      {{ i18n.t('heatmap.card.unitAvg') }}
+                    }
+                  </span>
+                  <span class="value">${{ i18n.formatNumber(store.estimatedBasketTotal, 2) }}</span>
+                </div>
+
+                <div class="metric">
+                  <span class="label">{{ i18n.t('heatmap.card.vsCityAvg') }}</span>
+                  <span
+                    class="savings-tag"
+                    [class.positive]="store.savingsPercentage >= 0"
+                    [class.negative]="store.savingsPercentage < 0"
+                  >
+                    @if (store.savingsPercentage >= 0) {
+                      {{ i18n.t('heatmap.card.cheaper', { pct: store.savingsPercentage }) }}
+                    } @else {
+                      {{ i18n.t('heatmap.card.higher', { pct: mathAbs(store.savingsPercentage) }) }}
+                    }
+                  </span>
                 </div>
               </div>
 
-              @if (store.status === 'best') {
-                <span class="best-badge">{{ i18n.t('heatmap.card.bestStore') }}</span>
-              }
-            </div>
-
-            <div class="store-card-body">
-              <div class="metric">
-                <span class="label">
-                  @if (activeMode() === 'groceryList') {
-                    {{ i18n.t('heatmap.card.basketTotal') }}
-                  } @else {
-                    {{ i18n.t('heatmap.card.unitAvg') }}
-                  }
-                </span>
-                <span class="value">${{ i18n.formatNumber(store.estimatedBasketTotal, 2) }}</span>
-              </div>
-
-              <div class="metric">
-                <span class="label">{{ i18n.t('heatmap.card.vsCityAvg') }}</span>
-                <span
-                  class="savings-tag"
-                  [class.positive]="store.savingsPercentage >= 0"
-                  [class.negative]="store.savingsPercentage < 0"
-                >
-                  @if (store.savingsPercentage >= 0) {
-                    {{ i18n.t('heatmap.card.cheaper', { pct: store.savingsPercentage }) }}
-                  } @else {
-                    {{ i18n.t('heatmap.card.higher', { pct: mathAbs(store.savingsPercentage) }) }}
-                  }
-                </span>
+              <div class="gps-footer">
+                <span class="material-symbols-rounded location-icon">my_location</span>
+                <span class="gps-coords">GPS: {{ store.lat.toFixed(4) }}, {{ store.lng.toFixed(4) }}</span>
               </div>
             </div>
-
-            <div class="gps-footer">
-              <span class="material-symbols-rounded location-icon">my_location</span>
-              <span class="gps-coords">GPS: {{ store.lat.toFixed(4) }}, {{ store.lng.toFixed(4) }}</span>
-            </div>
-          </div>
+          }
         }
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, of } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ShoppingListItem } from '../shopping-list/shopping-list.service';
 import { SettingsService } from '../settings/settings.service';
 
@@ -40,80 +40,14 @@ export interface StoreGrocerySummary {
   providedIn: 'root',
 })
 export class HeatmapService {
-  private readonly http = inject(HttpClient);
+  private readonly http = inject(HttpClient, { optional: true });
   private readonly settings = inject(SettingsService);
+  private activeFetchSub?: Subscription;
 
-  readonly CENTER_LAT = -34.498361;
-  readonly CENTER_LNG = -58.497528;
-
-  // Local neighborhood grocery stores default signal
-  readonly stores = signal<StoreLocation[]>([
-    {
-      id: 's1',
-      name: 'Almacén Don Pedro',
-      chain: 'Local Grocery',
-      address: 'Av. Santa Fe 1840, San Isidro',
-      lat: -34.498361 + 0.035,
-      lng: -58.497528 + 0.012,
-      priceMultiplier: 0.88,
-    },
-    {
-      id: 's2',
-      name: 'Minimercado Los Amigos',
-      chain: 'Local Grocery',
-      address: 'Calle Centenario 450, San Isidro',
-      lat: -34.498361 + 0.042,
-      lng: -58.497528 - 0.018,
-      priceMultiplier: 0.91,
-    },
-    {
-      id: 's3',
-      name: 'Despensa Santa Rosa',
-      chain: 'Local Grocery',
-      address: 'Av. Avelino Rolón 2100, Boulogne',
-      lat: -34.498361 + 0.005,
-      lng: -58.497528 - 0.041,
-      priceMultiplier: 0.94,
-    },
-    {
-      id: 's4',
-      name: 'Verdulería San José',
-      chain: 'Local Grocery',
-      address: 'Calle Blanco Encalada 1200, San Isidro',
-      lat: -34.498361 - 0.015,
-      lng: -58.497528 - 0.038,
-      priceMultiplier: 0.98,
-    },
-    {
-      id: 's5',
-      name: 'Granja El Sol',
-      chain: 'Local Grocery',
-      address: 'Av. del Libertador 14200, Martínez',
-      lat: -34.498361 + 0.002,
-      lng: -58.497528 + 0.003,
-      priceMultiplier: 1.05,
-    },
-    {
-      id: 's6',
-      name: 'Mercadito Don Mateo',
-      chain: 'Local Grocery',
-      address: 'Calle General Belgrano 320, San Isidro',
-      lat: -34.498361 - 0.008,
-      lng: -58.497528 - 0.004,
-      priceMultiplier: 1.12,
-    },
-  ]);
-
-  readonly productCatalog = signal<ProductPriceSample[]>([
-    { id: 'p1', productName: 'Organic Whole Milk 1L', category: 'Dairy', basePrice: 1250 },
-    { id: 'p2', productName: 'Large Brown Eggs 12-pack', category: 'Dairy', basePrice: 2800 },
-    { id: 'p3', productName: 'French Bread 1kg', category: 'Bakery', basePrice: 2200 },
-    { id: 'p4', productName: 'Ground Coffee 250g', category: 'Beverages', basePrice: 3800 },
-    { id: 'p5', productName: 'Tomatoes 1kg', category: 'Produce', basePrice: 1800 },
-    { id: 'p6', productName: 'Bananas 1kg', category: 'Produce', basePrice: 1400 },
-    { id: 'p7', productName: 'Pasta 500g', category: 'Pantry', basePrice: 1150 },
-    { id: 'p8', productName: 'Sunflower Oil 900ml', category: 'Pantry', basePrice: 1950 },
-  ]);
+  readonly stores = signal<StoreLocation[]>([]);
+  readonly productCatalog = signal<ProductPriceSample[]>([]);
+  readonly isLoading = signal<boolean>(false);
+  readonly loadError = signal<boolean>(false);
 
   readonly selectedProduct = signal<string>('ALL');
   readonly selectedCategory = signal<string>('ALL');
@@ -126,28 +60,59 @@ export class HeatmapService {
     return Array.from(set);
   });
 
-  fetchSpatialHeatmap(lat = this.CENTER_LAT, lng = this.CENTER_LNG, radiusKm = 10.0): void {
-    const url = `${this.settings.backendApiUrl()}/../stores/heatmap?lat=${lat}&lon=${lng}&radiusKm=${radiusKm}`;
-    this.http
-      .get<StoreGrocerySummary[]>(url)
-      .pipe(catchError(() => of([])))
-      .subscribe((data) => {
-        if (data && data.length > 0) {
-          const mapped: StoreLocation[] = data.map((d) => ({
-            id: d.storeId,
-            name: d.storeName,
-            chain: d.chain,
-            address: d.address,
-            lat: d.lat,
-            lng: d.lng,
-            priceMultiplier: Math.round((1 - d.savingsPercentage / 100) * 100) / 100,
-          }));
-          this.stores.set(mapped);
-        }
-      });
+  fetchSpatialHeatmap(lat: number, lng: number, radiusKm = this.settings.radiusKm()): void {
+    if (!this.http) {
+      this.stores.set([]);
+      return;
+    }
+
+    let endpointUrl: string;
+    try {
+      const apiBase = this.settings.backendApiUrl();
+      const base =
+        typeof window !== 'undefined' && window.location?.origin
+          ? new URL(apiBase, window.location.origin)
+          : new URL(apiBase);
+      const url = new URL('/api/v1/stores/heatmap', base);
+      url.searchParams.set('lat', String(lat));
+      url.searchParams.set('lon', String(lng));
+      url.searchParams.set('radiusKm', String(radiusKm));
+      endpointUrl = url.toString();
+    } catch {
+      this.stores.set([]);
+      this.loadError.set(true);
+      return;
+    }
+
+    this.activeFetchSub?.unsubscribe();
+    this.isLoading.set(true);
+    this.loadError.set(false);
+
+    this.activeFetchSub = this.http.get<StoreGrocerySummary[]>(endpointUrl).subscribe({
+      next: (data) => {
+        const mapped: StoreLocation[] = Array.isArray(data)
+          ? data.map((d) => ({
+              id: d.storeId,
+              name: d.storeName,
+              chain: d.chain,
+              address: d.address,
+              lat: d.lat,
+              lng: d.lng,
+              priceMultiplier: Math.round((1 - d.savingsPercentage / 100) * 100) / 100,
+            }))
+          : [];
+        this.stores.set(mapped);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.stores.set([]);
+        this.loadError.set(true);
+        this.isLoading.set(false);
+      },
+    });
   }
 
-  getProductPriceAtStore(productName: string, storeId: string): number {
+  getProductPriceAtStore(productName: string, storeId: string, fallbackBasePrice = 0): number {
     const store = this.stores().find((s) => s.id === storeId);
     const multiplier = store ? store.priceMultiplier : 1.0;
 
@@ -155,7 +120,7 @@ export class HeatmapService {
       (p) => p.productName.toLowerCase() === productName.toLowerCase()
     );
 
-    const base = catalogItem ? catalogItem.basePrice : 1800;
+    const base = catalogItem ? catalogItem.basePrice : fallbackBasePrice;
     return Math.round(base * multiplier * 100) / 100;
   }
 
@@ -184,7 +149,8 @@ export class HeatmapService {
       let totalQty = 0;
 
       for (const item of items) {
-        const itemStorePrice = this.getProductPriceAtStore(item.name, s.id);
+        const itemBasePrice = item.manualUnitPrice ?? item.estimatedUnitPrice;
+        const itemStorePrice = this.getProductPriceAtStore(item.name, s.id, itemBasePrice);
         storeBasketTotal += itemStorePrice * item.quantity;
         totalQty += item.quantity;
       }

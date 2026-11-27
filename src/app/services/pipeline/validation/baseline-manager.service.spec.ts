@@ -80,4 +80,28 @@ describe('BaselineManagerService', () => {
     expect(baseline.metrics.recognition.characterErrorRate).toBe(0.05);
     expect(baseline.metrics.performance.averagePipelineLatencyMs).toBe(35.5);
   });
+
+  it('should preserve existing detection and recognition metrics when datasetReport is null', () => {
+    const baseline = service.createBaselineFromReports(
+      null,
+      {
+        timestamp: new Date().toISOString(),
+        iterations: 5,
+        warmupIterations: 2,
+        totalDurationMs: 150,
+        averagePipelineLatencyMs: 30.0,
+        fps: 33.3,
+        stageMetrics: {},
+        bottleneckStage: 'detector',
+        memory: { initialHeapMb: 40, finalHeapMb: 41, peakHeapMb: 42, deltaHeapMb: 1 },
+        iterationSamples: [],
+      },
+      'Profiler Baseline',
+      FALLBACK_GOLDEN_BASELINE,
+    );
+
+    expect(baseline.metrics.detection).toEqual(FALLBACK_GOLDEN_BASELINE.metrics.detection);
+    expect(baseline.metrics.recognition).toEqual(FALLBACK_GOLDEN_BASELINE.metrics.recognition);
+    expect(baseline.metrics.performance.averagePipelineLatencyMs).toBe(30.0);
+  });
 });

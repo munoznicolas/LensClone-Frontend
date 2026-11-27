@@ -27,19 +27,6 @@
     </div>
   </div>
 
-  <!-- Quick Add Presets -->
-  <div class="presets-section">
-    <span class="presets-label">{{ i18n.t('shoppingList.presets.label') }}</span>
-    <div class="presets-buttons">
-      @for (preset of presets(); track preset.name) {
-        <button type="button" class="preset-btn" (click)="addPreset(preset.name, preset.qty)">
-          <span class="material-symbols-rounded">add</span>
-          <span>{{ preset.name }}</span>
-        </button>
-      }
-    </div>
-  </div>
-
   <!-- Add Item Form -->
   <div class="add-item-card">
     <h3>

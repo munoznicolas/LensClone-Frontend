@@ -118,4 +118,23 @@ describe('PipelineValidationService', () => {
     const latencyDiff = validation.comparisons.find((c) => c.metric === 'Average Pipeline Latency (ms)');
     expect(latencyDiff?.status).toBe('FAIL');
   });
+
+  it('should validate performance-only profiler runs when datasetReport is null', () => {
+    const profileReport: ProfilingSessionReport = {
+      timestamp: new Date().toISOString(),
+      iterations: 5,
+      warmupIterations: 2,
+      totalDurationMs: 200,
+      averagePipelineLatencyMs: 40.0,
+      fps: 25.0,
+      stageMetrics: {},
+      bottleneckStage: 'detector',
+      memory: { initialHeapMb: 40, finalHeapMb: 41, peakHeapMb: 42, deltaHeapMb: 1, bufferPoolHitRate: 0.96 },
+      iterationSamples: [],
+    };
+
+    const validation = service.validate(null, profileReport, FALLBACK_GOLDEN_BASELINE);
+    expect(validation.overallPassed).toBe(true);
+    expect(validation.comparisons.every((c) => c.category === 'performance' || c.category === 'memory')).toBe(true);
+  });
 });
