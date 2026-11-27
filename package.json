@@ -6,7 +6,7 @@
     "start": "node scripts/ng-with-env.js serve",
     "build": "node scripts/ng-with-env.js build",
     "watch": "node scripts/ng-with-env.js build --watch --configuration development",
-    "test": "ng test --isolate=true",
+    "test": "ng test",
     "test:benchmark": "ng test --include=**/grocery-benchmark.local.spec.ts",
     "benchmark:parallel": "node scripts/run-parallel-benchmark.js",
     "profile": "node scripts/run-profiling-suite.js",

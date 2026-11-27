@@ -1,30 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-
-vi.mock('onnxruntime-web', () => {
-  const createMock = vi.fn().mockResolvedValue({
-    outputNames: ['out'],
-    run: vi.fn().mockResolvedValue({ out: {} }),
-  });
-  const tensorMock = vi.fn().mockImplementation((type: any, data: any, dims: any) => ({
-    type,
-    data,
-    dims,
-  }));
-  const envMock = { wasm: { numThreads: 4, proxy: false, logLevel: 'error', wasmPaths: '/assets/ort/' } };
-
-  return {
-    __esModule: true,
-    default: {
-      env: envMock,
-      InferenceSession: { create: createMock },
-      Tensor: tensorMock,
-    },
-    env: envMock,
-    InferenceSession: { create: createMock },
-    Tensor: tensorMock,
-  };
-});
-
 import { TestBed } from '@angular/core/testing';
 import { DetectorService } from './detector.service';
 import { DetectorPreprocessorService } from './detector-preprocessor.service';
