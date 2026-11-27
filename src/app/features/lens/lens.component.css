@@ -1,5 +1,5 @@
 :host {
-  --top-bar-btn-size: 48px;
+  --top-bar-btn-size: 44px;
   display: block;
   width: 100%;
   height: 100%;
@@ -44,9 +44,13 @@ app-overlay {
   right: 0;
   height: calc(56px + env(safe-area-inset-top, 0px));
   padding-top: env(safe-area-inset-top, 0px);
-  padding-left: 16px;
-  padding-right: 16px;
+  padding-left: 8px;
+  padding-right: 8px;
   z-index: 10;
+}
+
+.top-app-bar:has(.modal-backdrop) {
+  z-index: 60;
 }
 
 .bar-gradient-top {
@@ -70,6 +74,7 @@ app-overlay {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 6px;
   height: 56px;
   width: 100%;
 }
@@ -78,29 +83,25 @@ app-overlay {
 .control-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  flex-shrink: 0;
   z-index: 2;
 }
 
-.btn-spacer {
-  width: var(--top-bar-btn-size);
-  height: var(--top-bar-btn-size);
-}
-
-/* Centered Title Lockup */
+/* Title Lockup */
 .app-title-lockup {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
   pointer-events: none;
   z-index: 1;
 }
 
 .lens-logo {
-  font-size: 22px;
+  font-size: 20px;
+  flex-shrink: 0;
   color: #8ab4f8;
   filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.7));
 }
@@ -108,11 +109,13 @@ app-overlay {
 .app-title {
   margin: 0;
   font-family: 'Google Sans', 'Roboto', sans-serif;
-  font-size: 19px;
+  font-size: clamp(15px, 4vw, 19px);
   font-weight: 500;
   color: #ffffff;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Viewfinder Frame & Corner Reticles */
@@ -373,7 +376,7 @@ app-overlay {
 
 .account-status-badge.signed-in {
   background: rgba(52, 168, 83, 0.15);
-  color: #34a853;
+  color: #86efac;
   border: 1px solid rgba(52, 168, 83, 0.3);
 }
 
@@ -793,6 +796,10 @@ app-overlay {
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
+  min-height: 44px;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
 }
 
@@ -977,17 +984,21 @@ app-overlay {
   transform: translate(-50%, -50%);
   width: 90%;
   max-width: 440px;
+  max-height: calc(100dvh - 24px);
   border-radius: 24px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
   overflow: hidden;
+  animation: fadeIn 0.2s ease-out;
 }
 
-.history-sheet {
+.history-sheet,
+.shopping-list-modal-sheet {
   bottom: 0;
   left: 0;
   right: 0;
-  max-height: 80vh;
+  max-height: 85dvh;
   border-radius: 28px 28px 0 0;
+  border-bottom: none;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
 }
 
@@ -1016,6 +1027,11 @@ app-overlay {
   border: none;
   color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 4px;
   border-radius: 50%;
 }
@@ -1028,6 +1044,8 @@ app-overlay {
 .modal-body {
   padding: 20px 24px;
   overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .modal-footer {
@@ -1154,6 +1172,11 @@ app-overlay {
   background: transparent;
   border: none;
   color: rgba(255, 255, 255, 0.2);
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
@@ -1199,7 +1222,7 @@ app-overlay {
 
 .danger-btn {
   background: rgba(234, 67, 53, 0.15);
-  color: #ea4335;
+  color: #ff8a80;
   border: 1px solid rgba(234, 67, 53, 0.3);
   border-radius: 20px;
   padding: 8px 16px;
@@ -1239,7 +1262,7 @@ app-overlay {
 
 .perm-status.active {
   background: rgba(52, 168, 83, 0.2);
-  color: #34a853;
+  color: #86efac;
   font-size: 12px;
   padding: 4px 10px;
   border-radius: 12px;
@@ -1248,6 +1271,8 @@ app-overlay {
 
 /* Guest contribution banner & card status */
 .guest-contribute-banner {
+  width: 100%;
+  text-align: left;
   display: flex;
   align-items: center;
   gap: 12px;

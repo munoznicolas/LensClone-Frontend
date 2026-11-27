@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostListener,
   inject,
   OnDestroy,
   signal,
@@ -307,6 +308,13 @@ export class LensComponent implements AfterViewInit, OnDestroy {
     this.activeModal.set('none');
     this.selectedHistoryItem.set(null);
     this.feedbackSubmitted.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.activeModal() !== 'none') {
+      this.closeModal();
+    }
   }
 
   toggleMenu(): void {

@@ -226,13 +226,14 @@
 }
 
 .price-edit-input {
-  width: 60px;
+  width: 68px;
+  min-height: 32px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.25rem;
   color: #38bdf8;
   font-weight: 600;
-  padding: 0.1rem 0.3rem;
+  padding: 0.25rem 0.4rem;
   font-size: 0.8rem;
 }
 
@@ -252,8 +253,11 @@
   color: #38bdf8;
   font-size: 1.1rem;
   font-weight: 700;
-  width: 24px;
-  height: 24px;
+  min-width: 36px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 

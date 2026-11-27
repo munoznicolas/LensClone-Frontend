@@ -120,7 +120,13 @@
   <!-- Settings Modal Overlay -->
   @if (isOpen()) {
     <div class="modal-backdrop" (click)="closeModal()">
-      <div class="modal-card" (click)="$event.stopPropagation()">
+      <div
+        class="modal-card"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="i18n.t('settings.modal.title')"
+        (click)="$event.stopPropagation()"
+      >
         <div class="modal-header">
           <h2>{{ i18n.t('settings.modal.title') }}</h2>
           <button

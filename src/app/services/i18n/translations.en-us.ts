@@ -44,10 +44,10 @@ export const EN_US_TRANSLATIONS = {
   'lens.flash.ariaLabel': 'Toggle Flashlight',
   'lens.flash.turnOff': 'Turn Off Flash',
   'lens.flash.turnOn': 'Turn On Flash',
-  'lens.title': 'Google Lens',
+  'lens.title': 'LensClone',
   'lens.shoppingList.ariaLabel': 'Shopping List & Budget',
   'lens.shoppingList.title': 'Shopping List & Budget Estimator',
-  'lens.account.ariaLabel': 'Google Account Profile',
+  'lens.account.ariaLabel': 'Account Profile',
   'lens.account.signInTitle': 'Sign In with Google',
   'lens.moreOptions.ariaLabel': 'More Options',
   'lens.moreOptions.title': 'Overflow Menu',
@@ -86,7 +86,7 @@ export const EN_US_TRANSLATIONS = {
   'lens.shutter.freezeLabel': 'Freeze & Search Frame',
   'lens.gallery.ariaLabel': 'Image Gallery',
   'lens.gallery.title': 'Image Gallery',
-  'lens.accountModal.title': 'Google Account',
+  'lens.accountModal.title': 'Account',
   'lens.accountModal.signedInBadge': 'Signed in with Google (Price submissions enabled)',
   'lens.accountModal.activeDesc':
     'Your captured frame history and settings are active for this account.',
@@ -247,7 +247,7 @@ export const EN_US_TRANSLATIONS = {
   'overlay.lineTag': 'Line #{lineId} ({count})',
 
   // Auth Service
-  'auth.defaultUserName': 'Google User',
+  'auth.defaultUserName': 'User',
   'auth.error.missingClientId': 'Google OAuth Client ID is not configured.',
   'auth.error.oauthFailed': 'Google sign-in failed: {error}',
   'auth.error.stateMismatch': 'Google sign-in state mismatch. Please try again.',

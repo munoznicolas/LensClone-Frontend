@@ -119,9 +119,19 @@
 
             <!-- Quantity Stepper Controls -->
             <div class="qty-stepper">
-              <button type="button" class="stepper-btn" (click)="updateQty(item, -1)">-</button>
+              <button
+                type="button"
+                class="stepper-btn"
+                (click)="updateQty(item, -1)"
+                [attr.aria-label]="'Decrease ' + item.name"
+              >-</button>
               <span class="qty-value">{{ item.quantity }}</span>
-              <button type="button" class="stepper-btn" (click)="updateQty(item, 1)">+</button>
+              <button
+                type="button"
+                class="stepper-btn"
+                (click)="updateQty(item, 1)"
+                [attr.aria-label]="'Increase ' + item.name"
+              >+</button>
             </div>
 
             <!-- Line Subtotal -->

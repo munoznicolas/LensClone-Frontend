@@ -1,4 +1,4 @@
-import { Component, Input, inject, signal } from '@angular/core';
+import { Component, HostListener, Input, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../services/settings/settings.service';
@@ -52,6 +52,13 @@ export class SettingsComponent {
 
   closeModal(): void {
     this.isOpen.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.isOpen()) {
+      this.closeModal();
+    }
   }
 
   saveSettings(): void {

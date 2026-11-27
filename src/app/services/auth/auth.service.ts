@@ -213,7 +213,7 @@ export class AuthService {
       const user: UserProfile = {
         id: payload.sub || `google_${Date.now()}`,
         name:
-          payload.name || payload.given_name || this.i18n?.t('auth.defaultUserName') || 'Google User',
+          payload.name || payload.given_name || this.i18n?.t('auth.defaultUserName') || 'User',
         email: payload.email || '',
         avatarUrl: payload.picture,
         idToken: credentialToken,
