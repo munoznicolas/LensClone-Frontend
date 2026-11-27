@@ -4,7 +4,7 @@
   height: 100vh;
   overflow: hidden;
   position: relative;
-  background-color: #000000;
+  background-color: var(--color-bg);
 }
 
 .mobile-viewport {

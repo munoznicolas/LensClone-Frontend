@@ -1,10 +1,10 @@
 .dashboard-container {
   min-height: 100vh;
-  background-color: #141414;
-  color: #e3e2e6;
+  background-color: var(--color-bg);
+  color: var(--color-text);
   display: flex;
   flex-direction: column;
-  font-family: 'Google Sans', 'Roboto', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
 }
 
 .dashboard-header {
@@ -12,12 +12,12 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.85rem 2rem;
-  background: #1e1f22;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-sm);
 }
 
 .brand {
@@ -29,9 +29,9 @@
 .lens-logo-badge {
   width: 42px;
   height: 42px;
-  border-radius: 12px;
-  background: rgba(138, 180, 248, 0.14);
-  border: 1px solid rgba(138, 180, 248, 0.3);
+  border-radius: var(--radius-md);
+  background: var(--color-brand-soft);
+  border: 1px solid rgba(46, 111, 64, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,15 +39,15 @@
 
 .brand-icon {
   font-size: 1.6rem;
-  color: #8ab4f8;
+  color: var(--color-brand);
 }
 
 .brand-text h1 {
   margin: 0;
-  font-family: 'Google Sans', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -55,30 +55,30 @@
 
 .brand-text .badge {
   font-size: 0.7rem;
-  font-weight: 600;
-  background: #3c4043;
-  color: #8ab4f8;
-  border: 1px solid rgba(138, 180, 248, 0.3);
+  font-weight: var(--weight-semibold);
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  border: 1px solid rgba(46, 111, 64, 0.25);
   padding: 0.15rem 0.6rem;
-  border-radius: 12px;
+  border-radius: var(--radius-pill);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .subtitle {
   margin: 0;
-  font-size: 0.78rem;
-  color: #9aa0a6;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
 }
 
 .nav-tabs {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  background: #141414;
+  background: var(--color-bg);
   padding: 0.3rem 0.4rem;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
 }
 
 .nav-tab {
@@ -88,25 +88,26 @@
   padding: 0.55rem 1.1rem;
   background: transparent;
   border: none;
-  color: #9aa0a6;
-  font-family: 'Google Sans', 'Roboto', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  border-radius: 20px;
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-tab:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text);
+  background: rgba(46, 111, 64, 0.08);
 }
 
 .nav-tab.active {
-  background: #3c4043;
-  color: #8ab4f8;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: var(--color-brand);
+  color: var(--color-on-brand);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--shadow-sm);
 }
 
 .nav-tab .material-symbols-rounded {
@@ -124,25 +125,26 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.55rem 1rem;
-  background: rgba(138, 180, 248, 0.12);
-  border: 1px solid rgba(138, 180, 248, 0.25);
-  color: #8ab4f8;
-  border-radius: 20px;
-  font-family: 'Google Sans', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 500;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .location-badge-btn.precise {
-  background: rgba(52, 168, 83, 0.15);
-  border-color: rgba(52, 168, 83, 0.35);
-  color: #34a853;
+  background: var(--color-brand-soft);
+  border-color: rgba(46, 111, 64, 0.35);
+  color: var(--color-brand);
 }
 
 .location-badge-btn:hover {
-  filter: brightness(1.15);
+  border-color: var(--color-brand);
   transform: translateY(-1px);
 }
 
@@ -151,26 +153,29 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.55rem 1rem;
-  background: #282a2d;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: #e3e2e6;
-  border-radius: 20px;
-  font-family: 'Google Sans', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 500;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .sim-btn:hover {
-  background: #3c4043;
-  color: #ffffff;
+  background: var(--color-brand-soft);
+  border-color: var(--color-brand);
+  color: var(--color-brand);
 }
 
 .profile-avatar-btn {
   width: 40px;
   height: 40px;
   border-radius: 50%;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -217,11 +222,11 @@
 }
 
 .card {
-  background: #1e1f22;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
   padding: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .analytics-card {
@@ -236,18 +241,19 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #202124;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
   padding: 4px 12px 4px 4px;
-  color: #e8eaed;
+  color: var(--color-text);
+  white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .desktop-profile-btn:hover {
-  background: #303134;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--color-brand-soft);
+  border-color: var(--color-brand);
 }
 
 .desktop-profile-btn .google-avatar-ring {
@@ -256,8 +262,8 @@
 }
 
 .desktop-user-name {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
   max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -266,36 +272,37 @@
 
 .desktop-profile-btn .logout-icon {
   font-size: 16px;
-  color: #9aa0a6;
+  color: var(--color-text-muted);
 }
 
 .desktop-google-login-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #ffffff;
-  color: #3c4043;
-  border: 1px solid #dadce0;
-  border-radius: 20px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
   padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  font-family: 'Google Sans', Roboto, sans-serif;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  font-family: var(--font-display);
+  white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .desktop-google-login-btn:hover {
-  background: #f8f9fa;
-  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.4);
+  background: var(--color-brand-soft);
+  border-color: var(--color-brand);
 }
 
 .auth-error-banner {
   padding: 0.75rem 1rem;
-  border-radius: 12px;
-  background: rgba(234, 67, 53, 0.14);
-  border: 1px solid rgba(234, 67, 53, 0.4);
-  color: #f28b82;
-  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  color: var(--color-danger);
+  font-size: var(--text-sm);
 }

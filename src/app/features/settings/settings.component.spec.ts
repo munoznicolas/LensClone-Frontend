@@ -66,7 +66,7 @@ describe('SettingsComponent', () => {
     expect(i18n.activeLocale()).toBe('es-AR');
     expect(localStore.get(LANGUAGE_STORAGE_KEY)).toBe('es-AR');
     expect(el.querySelector('.settings-header h2')?.textContent).toContain(
-      'Configuración del sistema LensClone',
+      'Configuración del sistema CartLeaf',
     );
     expect(el.querySelector('.saved-badge')?.textContent).toContain('Preferencias guardadas');
 
@@ -82,7 +82,7 @@ describe('SettingsComponent', () => {
     expect(i18n.preference()).toBe('en-US');
     expect(i18n.activeLocale()).toBe('en-US');
     expect(el.querySelector('.settings-header h2')?.textContent).toContain(
-      'LensClone System Settings',
+      'CartLeaf System Settings',
     );
   });
 

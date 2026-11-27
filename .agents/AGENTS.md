@@ -15,6 +15,7 @@ You are operating on the **LensClone Frontend** repository (`PoC-LensClone`). Al
 
 ## 3. Code Aesthetics & Documentation
 - Follow styling rules in `CODESTYLE.md` (curated palettes, glassmorphism, responsive dynamic layouts, accessibility attributes).
+- Never introduce new hardcoded color literals (`#hex`, `rgb()`, `rgba()`, `hsl()`) outside `src/styles.css`; use CSS custom properties (`var(--color-*)`) instead.
 - Keep co-located `README.md` files updated whenever modifying feature components (`src/app/features/*/`) or core services (`src/app/services/*/`).
 
 ## 4. Mandatory Verification

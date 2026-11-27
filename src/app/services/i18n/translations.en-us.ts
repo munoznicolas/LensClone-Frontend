@@ -4,11 +4,11 @@ export const EN_US_TRANSLATIONS = {
   'common.cancel': 'Cancel',
 
   // Settings
-  'settings.inline.title': '⚙️ LensClone System Settings',
+  'settings.inline.title': '⚙️ CartLeaf System Settings',
   'settings.inline.subtitle':
     'Configure language, search parameters, historical time windows, and location GPS precision modes.',
   'settings.trigger.ariaLabel': 'App Settings',
-  'settings.modal.title': '⚙️ LensClone Settings',
+  'settings.modal.title': '⚙️ CartLeaf Settings',
   'settings.modal.closeAriaLabel': 'Close settings',
   'settings.language.label': 'Language',
   'settings.language.auto': 'Browser default (Navigator)',
@@ -44,7 +44,7 @@ export const EN_US_TRANSLATIONS = {
   'lens.flash.ariaLabel': 'Toggle Flashlight',
   'lens.flash.turnOff': 'Turn Off Flash',
   'lens.flash.turnOn': 'Turn On Flash',
-  'lens.title': 'LensClone',
+  'lens.title': 'CartLeaf',
   'lens.shoppingList.ariaLabel': 'Shopping List & Budget',
   'lens.shoppingList.title': 'Shopping List & Budget Estimator',
   'lens.account.ariaLabel': 'Account Profile',
@@ -223,7 +223,7 @@ export const EN_US_TRANSLATIONS = {
   'shoppingList.error.emptyName': 'Item name cannot be empty',
 
   // Location Permission Modal
-  'locationModal.title': "Allow LensClone to access this device's location?",
+  'locationModal.title': "Allow CartLeaf to access this device's location?",
   'locationModal.subtitleBefore':
     'Select your location accuracy level. Captured prices and scans will be flagged accordingly as ',
   'locationModal.subtitlePrecise': 'precise',

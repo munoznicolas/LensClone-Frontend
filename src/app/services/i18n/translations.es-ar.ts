@@ -6,11 +6,11 @@ export const ES_AR_TRANSLATIONS: Record<TranslationKey, string> = {
   'common.cancel': 'Cancelar',
 
   // Settings
-  'settings.inline.title': '⚙️ Configuración del sistema LensClone',
+  'settings.inline.title': '⚙️ Configuración del sistema CartLeaf',
   'settings.inline.subtitle':
     'Configurá el idioma, los parámetros de búsqueda, las ventanas de tiempo y los modos de precisión del GPS.',
   'settings.trigger.ariaLabel': 'Configuración de la app',
-  'settings.modal.title': '⚙️ Configuración de LensClone',
+  'settings.modal.title': '⚙️ Configuración de CartLeaf',
   'settings.modal.closeAriaLabel': 'Cerrar configuración',
   'settings.language.label': 'Idioma',
   'settings.language.auto': 'Automático (según el navegador)',
@@ -46,7 +46,7 @@ export const ES_AR_TRANSLATIONS: Record<TranslationKey, string> = {
   'lens.flash.ariaLabel': 'Alternar linterna',
   'lens.flash.turnOff': 'Apagar flash',
   'lens.flash.turnOn': 'Prender flash',
-  'lens.title': 'LensClone',
+  'lens.title': 'CartLeaf',
   'lens.shoppingList.ariaLabel': 'Lista de compras y presupuesto',
   'lens.shoppingList.title': 'Lista de compras y estimador de presupuesto',
   'lens.account.ariaLabel': 'Perfil de cuenta',
@@ -227,7 +227,7 @@ export const ES_AR_TRANSLATIONS: Record<TranslationKey, string> = {
   'shoppingList.error.emptyName': 'El nombre del producto no puede estar vacío',
 
   // Location Permission Modal
-  'locationModal.title': '¿Permitir que LensClone acceda a la ubicación de este dispositivo?',
+  'locationModal.title': '¿Permitir que CartLeaf acceda a la ubicación de este dispositivo?',
   'locationModal.subtitleBefore':
     'Elegí el nivel de precisión de tu ubicación. Los precios y escaneos capturados se marcarán como ubicación ',
   'locationModal.subtitlePrecise': 'precisa',

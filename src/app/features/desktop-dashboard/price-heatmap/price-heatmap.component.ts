@@ -210,15 +210,21 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
     }, 200);
   }
 
+  private cssVar(name: string, fallback: string): string {
+    if (typeof document === 'undefined') return fallback;
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+  }
+
   private renderUserLocationAndRadius(lat: number, lng: number, radiusKm: number): void {
     this.userRadiusGroup.clearLayers();
+    const brandColor = this.cssVar('--color-brand', '#2e6f40');
 
     const radiusCircle = L.circle([lat, lng], {
       radius: radiusKm * 1000,
-      color: '#3b82f6',
+      color: brandColor,
       weight: 1.5,
       dashArray: '6 6',
-      fillColor: '#3b82f6',
+      fillColor: brandColor,
       fillOpacity: 0.04,
       interactive: false,
     });
@@ -344,11 +350,11 @@ export class PriceHeatmapComponent implements AfterViewInit, OnDestroy {
 
   getStoreColor(storeId: string): string {
     const summary = this.getStoreSummary(storeId);
-    if (!summary) return '#94a3b8';
+    if (!summary) return this.cssVar('--color-text-muted', '#5b665d');
 
-    if (summary.status === 'best') return '#10b981'; // Emerald
-    if (summary.status === 'average') return '#f59e0b'; // Amber
-    return '#ef4444'; // Red
+    if (summary.status === 'best') return this.cssVar('--color-brand', '#2e6f40');
+    if (summary.status === 'average') return this.cssVar('--color-deal', '#d97706');
+    return this.cssVar('--color-danger', '#dc2626');
   }
 
   mathAbs(val: number): number {

@@ -102,13 +102,13 @@ app-overlay {
 .lens-logo {
   font-size: 20px;
   flex-shrink: 0;
-  color: #8ab4f8;
+  color: var(--color-hud-accent);
   filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.7));
 }
 
 .app-title {
   margin: 0;
-  font-family: 'Google Sans', 'Roboto', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(15px, 4vw, 19px);
   font-weight: 500;
   color: #ffffff;
@@ -206,7 +206,7 @@ app-overlay {
 
 .toast-icon {
   font-size: 18px;
-  color: #34a853;
+  color: var(--color-hud-accent);
 }
 
 /* Google Avatar Ring Styling */
@@ -246,9 +246,9 @@ app-overlay {
 }
 
 .icon-btn.active {
-  background: var(--color-accent, #fbbc04);
+  background: var(--color-hud-accent);
   color: #000000;
-  border-color: var(--color-accent, #fbbc04);
+  border-color: var(--color-hud-accent);
   box-shadow: 0 0 12px rgba(251, 188, 4, 0.5);
 }
 
@@ -256,7 +256,7 @@ app-overlay {
   position: absolute;
   top: 4px;
   right: 4px;
-  background: var(--color-accent, #fbbc04);
+  background: var(--color-hud-accent);
   color: #000000;
   font-size: 11px;
   font-weight: 700;
@@ -290,8 +290,8 @@ app-overlay {
 }
 
 .profile-btn.signed-in {
-  border-color: #4285f4;
-  box-shadow: 0 0 10px rgba(66, 133, 244, 0.4);
+  border-color: var(--color-hud-accent);
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
 }
 
 .avatar-img {
@@ -338,7 +338,7 @@ app-overlay {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: #4285f4;
+  background: var(--color-brand);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -499,7 +499,7 @@ app-overlay {
 }
 
 .debug-item {
-  color: var(--color-accent, #fbbc04);
+  color: var(--color-hud-accent);
 }
 
 /* Bottom Action Bar */
@@ -589,7 +589,7 @@ app-overlay {
   position: absolute;
   top: -4px;
   right: -4px;
-  background: var(--color-accent, #fbbc04);
+  background: var(--color-hud-accent);
   color: #000000;
   font-size: 11px;
   font-weight: 700;
@@ -647,8 +647,8 @@ app-overlay {
 }
 
 .double-ring-shutter.frozen .shutter-outer-ring {
-  border-color: #8ab4f8;
-  box-shadow: 0 0 20px rgba(138, 180, 248, 0.6);
+  border-color: var(--color-hud-accent);
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.55);
 }
 
 .shutter-inner-core {
@@ -663,7 +663,7 @@ app-overlay {
 }
 
 .double-ring-shutter.frozen .shutter-inner-core {
-  background: #8ab4f8;
+  background: var(--color-hud-accent);
 }
 
 .double-ring-shutter .btn-icon {
@@ -689,7 +689,7 @@ app-overlay {
   right: 0;
   bottom: 0;
   z-index: 30;
-  background: #1e1f22;
+  background: var(--color-hud-bg);
   color: #e3e2e6;
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
@@ -748,10 +748,10 @@ app-overlay {
   gap: 6px;
   padding: 8px 14px;
   border-radius: 12px;
-  background: #282a2d;
+  background: var(--color-hud-surface);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #8ab4f8;
-  font-family: 'Google Sans', 'Roboto', sans-serif;
+  color: var(--color-hud-accent);
+  font-family: var(--font-display);
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
@@ -760,7 +760,7 @@ app-overlay {
 }
 
 .m3-action-chip:hover {
-  background: #3c4043;
+  background: var(--color-brand);
   color: #ffffff;
 }
 
@@ -783,7 +783,7 @@ app-overlay {
 
 .sheet-section-header h2 {
   margin: 0;
-  font-family: 'Google Sans', sans-serif;
+  font-family: var(--font-display);
   font-size: 17px;
   font-weight: 500;
   color: #ffffff;
@@ -792,7 +792,7 @@ app-overlay {
 .text-btn {
   background: transparent;
   border: none;
-  color: #8ab4f8;
+  color: var(--color-hud-accent);
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -810,7 +810,7 @@ app-overlay {
 }
 
 .m3-result-card {
-  background: #0f0f11;
+  background: var(--color-hud-bg);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 16px;
@@ -831,19 +831,19 @@ app-overlay {
 
 .card-badge.good {
   background: rgba(52, 168, 83, 0.2);
-  color: #34a853;
+  color: var(--color-hud-accent);
   border: 1px solid rgba(52, 168, 83, 0.3);
 }
 
 .card-badge.average {
   background: rgba(251, 188, 5, 0.2);
-  color: #fbbc05;
+  color: var(--color-deal);
   border: 1px solid rgba(251, 188, 5, 0.3);
 }
 
 .card-badge.high {
   background: rgba(234, 67, 53, 0.2);
-  color: #ea4335;
+  color: var(--color-danger);
   border: 1px solid rgba(234, 67, 53, 0.3);
 }
 
@@ -863,7 +863,7 @@ app-overlay {
 .price-val {
   font-size: 18px;
   font-weight: 700;
-  color: #8ab4f8;
+  color: var(--color-hud-accent);
 }
 
 .qty-unit {
@@ -896,7 +896,7 @@ app-overlay {
 .state-icon {
   font-size: 44px;
   margin-bottom: 8px;
-  color: #8ab4f8;
+  color: var(--color-hud-accent);
 }
 
 /* Floating 72px Action Button */
@@ -929,7 +929,7 @@ app-overlay {
 }
 
 .primary-action-btn.frozen {
-  background: var(--color-accent, #fbbc04);
+  background: var(--color-hud-accent);
 }
 
 .btn-icon {
@@ -959,7 +959,7 @@ app-overlay {
 .modal-sheet {
   position: fixed;
   z-index: 50;
-  background: #1c1c1e;
+  background: var(--color-hud-bg);
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
@@ -1000,6 +1000,26 @@ app-overlay {
   border-radius: 28px 28px 0 0;
   border-bottom: none;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.shopping-list-modal-sheet {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border-top: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.shopping-list-modal-sheet .modal-header {
+  border-bottom-color: var(--color-border);
+}
+
+.shopping-list-modal-sheet .close-btn {
+  color: var(--color-text-muted);
+}
+
+.shopping-list-modal-sheet .close-btn:hover {
+  color: var(--color-text);
+  background: var(--color-brand-soft);
 }
 
 .modal-header {
@@ -1108,7 +1128,7 @@ app-overlay {
 }
 
 .delete-btn:hover {
-  background: #ea4335;
+  background: var(--color-danger);
 }
 
 .delete-btn .material-symbols-rounded {
@@ -1132,7 +1152,7 @@ app-overlay {
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: var(--color-accent, #fbbc04);
+  color: var(--color-hud-accent);
 }
 
 .text-icon {
@@ -1181,7 +1201,7 @@ app-overlay {
 }
 
 .star-btn.active {
-  color: var(--color-accent, #fbbc04);
+  color: var(--color-hud-accent);
 }
 
 .star-btn .material-symbols-rounded {
@@ -1242,7 +1262,7 @@ app-overlay {
 
 .perm-icon {
   font-size: 28px;
-  color: var(--color-accent, #fbbc04);
+  color: var(--color-hud-accent);
 }
 
 .perm-text {
@@ -1276,8 +1296,8 @@ app-overlay {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(66, 133, 244, 0.12);
-  border: 1px solid rgba(66, 133, 244, 0.3);
+  background: rgba(76, 175, 80, 0.12);
+  border: 1px solid rgba(76, 175, 80, 0.3);
   border-radius: 12px;
   padding: 10px 14px;
   margin-bottom: 12px;
@@ -1286,11 +1306,11 @@ app-overlay {
 }
 
 .guest-contribute-banner:hover {
-  background: rgba(66, 133, 244, 0.18);
+  background: rgba(76, 175, 80, 0.18);
 }
 
 .guest-contribute-banner .banner-icon {
-  color: #8ab4f8;
+  color: var(--color-hud-accent);
   font-size: 20px;
 }
 
@@ -1309,7 +1329,7 @@ app-overlay {
 }
 
 .guest-contribute-banner .banner-action-btn {
-  background: #1a73e8;
+  background: var(--color-brand);
   color: #ffffff;
   border: none;
   border-radius: 8px;
