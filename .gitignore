@@ -37,7 +37,10 @@ yarn-error.log
 /libpeerconnection.log
 testem.log
 /typings
+# Testing & Audits
 __screenshots__/
+/playwright-report/
+/test-results/
 
 # Environment
 .env

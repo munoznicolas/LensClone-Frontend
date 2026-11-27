@@ -27,8 +27,8 @@
 
     <div class="bar-content">
       <!-- Flash Toggle Button -->
-      <div class="control-left">
-        @if (isTorchSupported()) {
+      @if (isTorchSupported()) {
+        <div class="control-left">
           <button
             type="button"
             class="icon-btn"
@@ -41,10 +41,8 @@
               {{ isTorchOn() ? 'flash_on' : 'flash_off' }}
             </span>
           </button>
-        } @else {
-          <div class="btn-spacer"></div>
-        }
-      </div>
+        </div>
+      }
 
       <!-- Centered Application Title Lockup -->
       <div class="app-title-lockup">
@@ -111,25 +109,25 @@
     @if (activeModal() === 'menu') {
       <div class="menu-backdrop" (click)="closeModal()"></div>
       <div class="overflow-menu" role="menu" tabIndex="-1">
-        <button type="button" class="menu-item" (click)="openModal('feedback')">
+        <button type="button" role="menuitem" class="menu-item" (click)="openModal('feedback')">
           <span class="material-symbols-rounded">feedback</span>
           <span>{{ i18n.t('lens.menu.feedback') }}</span>
         </button>
-        <button type="button" class="menu-item" (click)="openModal('permissions')">
+        <button type="button" role="menuitem" class="menu-item" (click)="openModal('permissions')">
           <span class="material-symbols-rounded">security</span>
           <span>{{ i18n.t('lens.menu.permissions') }}</span>
         </button>
-        <button type="button" class="menu-item" (click)="openModal('privacy')">
+        <button type="button" role="menuitem" class="menu-item" (click)="openModal('privacy')">
           <span class="material-symbols-rounded">privacy_tip</span>
           <span>{{ i18n.t('lens.menu.privacy') }}</span>
         </button>
-        <button type="button" class="menu-item" (click)="openModal('terms')">
+        <button type="button" role="menuitem" class="menu-item" (click)="openModal('terms')">
           <span class="material-symbols-rounded">description</span>
           <span>{{ i18n.t('lens.menu.terms') }}</span>
         </button>
         @if (deviceService.isDesktopSystem()) {
-          <div class="menu-divider"></div>
-          <button type="button" class="menu-item" (click)="switchToDesktopView()">
+          <div class="menu-divider" role="separator"></div>
+          <button type="button" role="menuitem" class="menu-item" (click)="switchToDesktopView()">
             <span class="material-symbols-rounded">desktop_windows</span>
             <span>{{ i18n.t('lens.menu.switchDesktop') }}</span>
           </button>
@@ -181,21 +179,20 @@
 
         @if (pipelineService.offers().length > 0) {
           @if (!authService.isAuthenticated()) {
-            <div
+            <button
+              type="button"
               class="guest-contribute-banner"
               (click)="openModal('account')"
-              role="button"
-              tabindex="0"
             >
               <span class="material-symbols-rounded banner-icon">info</span>
               <div class="banner-text">
                 <strong>{{ i18n.t('lens.guestBanner.title') }}</strong>
                 <span>{{ i18n.t('lens.guestBanner.desc') }}</span>
               </div>
-              <button type="button" class="banner-action-btn">
+              <span class="banner-action-btn">
                 {{ i18n.t('lens.guestBanner.signIn') }}
-              </button>
-            </div>
+              </span>
+            </button>
           }
           <div class="offers-grid">
             @for (offer of pipelineService.offers(); track offer.id) {
@@ -261,7 +258,8 @@
   }
 
   <!-- Bottom Primary Controls Area -->
-  <footer class="bottom-action-bar">
+  @if (!isFrozen()) {
+    <footer class="bottom-action-bar">
     <div class="bar-gradient-bottom"></div>
 
     <!-- Main Shutter Control Bar -->
@@ -328,7 +326,8 @@
         </button>
       </div>
     </div>
-  </footer>
+    </footer>
+  }
 
   <!-- Modal Dialogs Backdrop & Container -->
   @if (activeModal() !== 'none' && activeModal() !== 'menu') {
@@ -339,6 +338,7 @@
       <div
         class="modal-sheet dialog-sheet account-sheet"
         role="dialog"
+        aria-modal="true"
         [attr.aria-label]="i18n.t('lens.accountModal.title')"
       >
         <div class="modal-header">
@@ -427,6 +427,7 @@
       <div
         class="modal-sheet history-sheet"
         role="dialog"
+        aria-modal="true"
         [attr.aria-label]="i18n.t('lens.historyModal.ariaLabel')"
       >
         <div class="modal-header">
@@ -508,6 +509,7 @@
       <div
         class="modal-sheet dialog-sheet"
         role="dialog"
+        aria-modal="true"
         [attr.aria-label]="i18n.t('lens.feedbackModal.title')"
       >
         <div class="modal-header">
@@ -536,6 +538,7 @@
                   class="star-btn"
                   [class.active]="star <= feedbackRating()"
                   (click)="feedbackRating.set(star)"
+                  [attr.aria-label]="star + ' / 5'"
                 >
                   <span class="material-symbols-rounded filled">star</span>
                 </button>
@@ -573,6 +576,7 @@
       <div
         class="modal-sheet dialog-sheet"
         role="dialog"
+        aria-modal="true"
         [attr.aria-label]="i18n.t('lens.permissionsModal.ariaLabel')"
       >
         <div class="modal-header">
@@ -618,6 +622,7 @@
       <div
         class="modal-sheet shopping-list-modal-sheet"
         role="dialog"
+        aria-modal="true"
         [attr.aria-label]="i18n.t('lens.shoppingListModal.title')"
       >
         <div class="modal-header">
@@ -642,6 +647,7 @@
       <div
         class="modal-sheet dialog-sheet"
         role="dialog"
+        aria-modal="true"
         [attr.aria-label]="i18n.t('lens.privacyModal.title')"
       >
         <div class="modal-header">
@@ -673,6 +679,7 @@
       <div
         class="modal-sheet dialog-sheet"
         role="dialog"
+        aria-modal="true"
         [attr.aria-label]="i18n.t('lens.termsModal.title')"
       >
         <div class="modal-header">

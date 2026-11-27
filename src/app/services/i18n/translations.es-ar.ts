@@ -46,10 +46,10 @@ export const ES_AR_TRANSLATIONS: Record<TranslationKey, string> = {
   'lens.flash.ariaLabel': 'Alternar linterna',
   'lens.flash.turnOff': 'Apagar flash',
   'lens.flash.turnOn': 'Prender flash',
-  'lens.title': 'Google Lens',
+  'lens.title': 'LensClone',
   'lens.shoppingList.ariaLabel': 'Lista de compras y presupuesto',
   'lens.shoppingList.title': 'Lista de compras y estimador de presupuesto',
-  'lens.account.ariaLabel': 'Perfil de cuenta de Google',
+  'lens.account.ariaLabel': 'Perfil de cuenta',
   'lens.account.signInTitle': 'Iniciá sesión con Google',
   'lens.moreOptions.ariaLabel': 'Más opciones',
   'lens.moreOptions.title': 'Menú de opciones',
@@ -88,7 +88,7 @@ export const ES_AR_TRANSLATIONS: Record<TranslationKey, string> = {
   'lens.shutter.freezeLabel': 'Capturar y buscar precios',
   'lens.gallery.ariaLabel': 'Galería de imágenes',
   'lens.gallery.title': 'Galería de imágenes',
-  'lens.accountModal.title': 'Cuenta de Google',
+  'lens.accountModal.title': 'Cuenta',
   'lens.accountModal.signedInBadge': 'Sesión iniciada con Google (envío de precios habilitado)',
   'lens.accountModal.activeDesc':
     'Tu historial de capturas y configuración están activos para esta cuenta.',
@@ -268,7 +268,7 @@ export const ES_AR_TRANSLATIONS: Record<TranslationKey, string> = {
   'overlay.lineTag': 'Línea #{lineId} ({count})',
 
   // Auth Service
-  'auth.defaultUserName': 'Usuario de Google',
+  'auth.defaultUserName': 'Usuario',
   'auth.error.missingClientId': 'El Client ID de Google OAuth no está configurado.',
   'auth.error.oauthFailed': 'Falló el inicio de sesión con Google: {error}',
   'auth.error.stateMismatch':
