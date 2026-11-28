@@ -11,7 +11,7 @@ const SETTINGS_STORAGE_KEY = 'lensclone_app_settings';
 
 const DEFAULT_SETTINGS: AppSettings = {
   timeWindowDays: 14,
-  radiusKm: 10,
+  radiusKm: 2.5,
   tolerancePercent: 5,
   backendApiUrl: 'https://d10oghpahlcf95.cloudfront.net/api/v1/prices',
 };

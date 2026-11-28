@@ -55,6 +55,8 @@
 /* Mode Selector Tabs */
 .mode-tabs {
   display: flex;
+  flex-wrap: wrap;
+  width: 100%;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -63,8 +65,10 @@
 }
 
 .mode-btn {
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.5rem 0.9rem;
   border: none;

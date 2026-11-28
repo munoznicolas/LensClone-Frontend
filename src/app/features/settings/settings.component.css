@@ -41,8 +41,7 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  width: 90%;
-  max-width: 480px;
+  width: min(92vw, 560px);
   max-height: calc(100dvh - 24px);
   display: flex;
   flex-direction: column;
@@ -98,10 +97,54 @@
   gap: 6px;
 }
 
-.form-group label {
+.form-group label,
+.form-group .field-label {
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-text);
+}
+
+.segmented-toggle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6px;
+  padding: 4px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.segment-btn {
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  text-align: center;
+  min-height: 40px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.segment-btn.active {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+  border-color: var(--color-brand);
+  font-weight: var(--weight-semibold);
+}
+
+.preset-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.preset-tick.active {
+  color: var(--color-brand);
+  font-weight: var(--weight-semibold);
 }
 
 .form-group select,
@@ -168,7 +211,6 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  max-width: 600px;
   width: 100%;
   box-shadow: var(--shadow-sm);
   overflow: hidden;

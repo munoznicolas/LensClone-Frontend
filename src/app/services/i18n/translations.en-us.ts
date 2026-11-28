@@ -4,11 +4,11 @@ export const EN_US_TRANSLATIONS = {
   'common.cancel': 'Cancel',
 
   // Settings
-  'settings.inline.title': '⚙️ CartLeaf System Settings',
+  'settings.inline.title': 'CartLeaf System Settings',
   'settings.inline.subtitle':
     'Configure language, search parameters, historical time windows, and location GPS precision modes.',
   'settings.trigger.ariaLabel': 'App Settings',
-  'settings.modal.title': '⚙️ CartLeaf Settings',
+  'settings.modal.title': 'CartLeaf Settings',
   'settings.modal.closeAriaLabel': 'Close settings',
   'settings.language.label': 'Language',
   'settings.language.auto': 'Browser default (Navigator)',
@@ -23,14 +23,14 @@ export const EN_US_TRANSLATIONS = {
   'settings.locationAccuracy.precise': 'Precise (Exact unrounded GPS coordinates)',
   'settings.locationAccuracy.approximate': 'Approximate (Coarse ~1.1km grid for privacy)',
   'settings.locationAccuracy.hintPrefix': 'Flag: Uploaded coordinates will be tagged with',
-  'settings.timeWindow.label': 'Historical Time Window (Days)',
+  'settings.timeWindow.label': 'Historical Time Window',
   'settings.timeWindow.option7': '7 Days',
   'settings.timeWindow.option14': '14 Days',
   'settings.timeWindow.option30': '30 Days',
   'settings.timeWindow.option90': '90 Days',
   'settings.timeWindow.hint':
     'Compares scanned prices against submissions within this recent time period.',
-  'settings.searchRadius.label': 'Geographic Radius (Km): {radius} km',
+  'settings.searchRadius.label': 'Geographic Radius: {radius}',
   'settings.searchRadius.hint':
     'Defines the search radius around your current location for price comparison.',
   'settings.tolerance.label': 'Price Rating Tolerance (%): ±{tolerance}%',
@@ -90,9 +90,8 @@ export const EN_US_TRANSLATIONS = {
   'lens.accountModal.signedInBadge': 'Signed in with Google (Price submissions enabled)',
   'lens.accountModal.activeDesc':
     'Your captured frame history and settings are active for this account.',
-  'lens.accountModal.guestTitle': 'Using Lens as Guest',
-  'lens.accountModal.guestDesc':
-    'Guests can explore and compare live prices. Sign in with Google to contribute new prices to the system.',
+  'lens.accountModal.guestTitle': 'Guest Mode',
+  'lens.accountModal.guestDesc': 'Sign in with Google to contribute new prices.',
   'lens.accountModal.signInBtn': 'Sign in with Google',
   'lens.accountModal.signOutBtn': 'Sign Out',
   'lens.accountModal.continueGuest': 'Continue Anonymously',
@@ -206,7 +205,7 @@ export const EN_US_TRANSLATIONS = {
   'shoppingList.summary.itemsLabel': 'Total Items & Units',
   'shoppingList.summary.itemsValue': '{items} items ({units} units)',
   'shoppingList.addForm.title': 'Add Item to List',
-  'shoppingList.addForm.nameLabel': 'Item Name',
+  'shoppingList.addForm.nameLabel': 'Add item',
   'shoppingList.addForm.namePlaceholder': 'e.g. Milk, Eggs, Coffee...',
   'shoppingList.addForm.qtyLabel': 'Qty',
   'shoppingList.addForm.priceLabel': 'Target/Unit Price ($)',

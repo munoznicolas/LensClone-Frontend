@@ -16,7 +16,6 @@ export class ShoppingListComponent {
 
   readonly newItemName = signal('');
   readonly newItemQty = signal(1);
-  readonly newItemPrice = signal<number | null>(null);
 
   constructor(readonly shoppingList: ShoppingListService) {}
 
@@ -24,15 +23,11 @@ export class ShoppingListComponent {
     const name = this.newItemName().trim();
     if (!name) return;
 
-    const qty = this.newItemQty();
-    const price = this.newItemPrice();
-
-    this.shoppingList.addItem(name, qty, price ?? undefined);
+    this.shoppingList.addItem(name, this.newItemQty());
 
     // Reset inputs
     this.newItemName.set('');
     this.newItemQty.set(1);
-    this.newItemPrice.set(null);
   }
 
   updateQty(item: ShoppingListItem, delta: number): void {

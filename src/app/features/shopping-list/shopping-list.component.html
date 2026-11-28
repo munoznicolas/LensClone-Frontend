@@ -10,30 +10,10 @@
         </span>
       </div>
     </div>
-
-    <div class="summary-card">
-      <span class="material-symbols-rounded summary-icon">shopping_cart</span>
-      <div class="summary-text">
-        <span class="summary-label">{{ i18n.t('shoppingList.summary.itemsLabel') }}</span>
-        <span class="summary-value">
-          {{
-            i18n.t('shoppingList.summary.itemsValue', {
-              items: shoppingList.itemCount(),
-              units: shoppingList.totalQuantity(),
-            })
-          }}
-        </span>
-      </div>
-    </div>
   </div>
 
   <!-- Add Item Form -->
   <div class="add-item-card">
-    <h3>
-      <span class="material-symbols-rounded">add_shopping_cart</span>
-      {{ i18n.t('shoppingList.addForm.title') }}
-    </h3>
-
     <form (submit)="$event.preventDefault(); addItem()" class="add-item-form">
       <div class="form-group name-group">
         <label for="item-name">{{ i18n.t('shoppingList.addForm.nameLabel') }}</label>
@@ -58,21 +38,14 @@
         />
       </div>
 
-      <div class="form-group price-group">
-        <label for="item-price">{{ i18n.t('shoppingList.addForm.priceLabel') }}</label>
-        <input
-          id="item-price"
-          type="number"
-          step="0.01"
-          [placeholder]="i18n.t('shoppingList.addForm.pricePlaceholder')"
-          [value]="newItemPrice() ?? ''"
-          (input)="newItemPrice.set($any($event.target).valueAsNumber || null)"
-        />
-      </div>
-
-      <button type="submit" class="add-btn" [disabled]="!newItemName().trim()">
+      <button
+        type="submit"
+        class="add-btn"
+        [disabled]="!newItemName().trim()"
+        [attr.aria-label]="i18n.t('shoppingList.addForm.addBtn')"
+        [attr.title]="i18n.t('shoppingList.addForm.addBtn')"
+      >
         <span class="material-symbols-rounded">add_circle</span>
-        <span>{{ i18n.t('shoppingList.addForm.addBtn') }}</span>
       </button>
     </form>
   </div>

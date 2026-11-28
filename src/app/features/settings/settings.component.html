@@ -1,3 +1,128 @@
+<ng-template #settingsFields let-prefix="prefix">
+  <!-- Language Option -->
+  <div class="form-group">
+    <label [attr.for]="prefix + 'language'">{{ i18n.t('settings.language.label') }}</label>
+    <select [id]="prefix + 'language'" [(ngModel)]="language">
+      <option value="auto">{{ i18n.t('settings.language.auto') }}</option>
+      <option value="es-AR">{{ i18n.t('settings.language.esAr') }}</option>
+      <option value="en-US">{{ i18n.t('settings.language.enUs') }}</option>
+    </select>
+  </div>
+
+  <!-- Location Accuracy Mode Option -->
+  <div class="form-group">
+    <span class="field-label" [id]="prefix + 'locationAccuracyLabel'">
+      {{ i18n.t('settings.locationAccuracy.label') }}
+    </span>
+    <div
+      [id]="prefix + 'locationAccuracy'"
+      class="segmented-toggle"
+      role="radiogroup"
+      [attr.aria-labelledby]="prefix + 'locationAccuracyLabel'"
+    >
+      <button
+        type="button"
+        role="radio"
+        class="segment-btn"
+        [class.active]="locationAccuracyMode === 'precise'"
+        [attr.aria-checked]="locationAccuracyMode === 'precise'"
+        (click)="locationAccuracyMode = 'precise'"
+      >
+        {{ i18n.t('settings.locationAccuracy.precise') }}
+      </button>
+      <button
+        type="button"
+        role="radio"
+        class="segment-btn"
+        [class.active]="locationAccuracyMode === 'approximate'"
+        [attr.aria-checked]="locationAccuracyMode === 'approximate'"
+        (click)="locationAccuracyMode = 'approximate'"
+      >
+        {{ i18n.t('settings.locationAccuracy.approximate') }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Time Window Option -->
+  <div class="form-group">
+    <label [attr.for]="prefix + 'timeWindow'">
+      {{ i18n.t('settings.timeWindow.label') }}: {{ timeWindowLabel(timeWindowDays) }}
+    </label>
+    <input
+      type="range"
+      [id]="prefix + 'timeWindow'"
+      min="0"
+      [max]="timeWindowPresets.length - 1"
+      step="1"
+      [value]="timeWindowIndex"
+      (input)="onTimeWindowSliderInput($event)"
+    />
+    <div class="preset-ticks" aria-hidden="true">
+      @for (days of timeWindowPresets; track days) {
+        <span class="preset-tick" [class.active]="timeWindowDays === days">
+          {{ timeWindowLabel(days) }}
+        </span>
+      }
+    </div>
+    <p class="field-hint">{{ i18n.t('settings.timeWindow.hint') }}</p>
+  </div>
+
+  <!-- Search Radius Option -->
+  <div class="form-group">
+    <label [attr.for]="prefix + 'searchRadius'">
+      {{ i18n.t('settings.searchRadius.label', { radius: formatRadius(radiusKm) }) }}
+    </label>
+    <input
+      type="range"
+      [id]="prefix + 'searchRadius'"
+      min="0"
+      [max]="radiusPresets.length - 1"
+      step="1"
+      [value]="radiusIndex"
+      (input)="onRadiusSliderInput($event)"
+    />
+    <div class="preset-ticks" aria-hidden="true">
+      @for (km of radiusPresets; track km) {
+        <span class="preset-tick" [class.active]="radiusKm === km">
+          {{ formatRadius(km) }}
+        </span>
+      }
+    </div>
+    <p class="field-hint">{{ i18n.t('settings.searchRadius.hint') }}</p>
+  </div>
+
+  <!-- Price Tolerance Option -->
+  <div class="form-group">
+    <label [attr.for]="prefix + 'tolerance'">
+      {{ i18n.t('settings.tolerance.label', { tolerance: tolerancePercent }) }}
+    </label>
+    <input
+      type="range"
+      [id]="prefix + 'tolerance'"
+      min="1"
+      max="25"
+      step="1"
+      [(ngModel)]="tolerancePercent"
+    />
+    <p class="field-hint">
+      {{ i18n.t('settings.tolerance.hint', { tolerance: tolerancePercent }) }}
+    </p>
+  </div>
+
+  <!-- Backend API URL -->
+  @if (authService.isAdmin()) {
+    <div class="form-group">
+      <label [attr.for]="prefix + 'apiUrl'">{{ i18n.t('settings.apiUrl.label') }}</label>
+      <input
+        type="text"
+        [id]="prefix + 'apiUrl'"
+        [(ngModel)]="backendApiUrl"
+        placeholder="http://localhost:5000/api/v1/prices"
+      />
+    </div>
+  }
+</ng-template>
+
 @if (inline) {
   <div class="inline-settings-card">
     <div class="settings-header">
@@ -6,94 +131,7 @@
     </div>
 
     <div class="settings-body">
-      <!-- Language Option -->
-      <div class="form-group">
-        <label for="inline-language">{{ i18n.t('settings.language.label') }}</label>
-        <select id="inline-language" [(ngModel)]="language">
-          <option value="auto">{{ i18n.t('settings.language.auto') }}</option>
-          <option value="es-AR">{{ i18n.t('settings.language.esAr') }}</option>
-          <option value="en-US">{{ i18n.t('settings.language.enUs') }}</option>
-        </select>
-        <p class="field-hint">
-          @if (language === 'auto') {
-            {{ i18n.t('settings.language.hint.auto', { locale: detectedLocaleLabel() }) }}
-          } @else {
-            {{ i18n.t('settings.language.hint.manual') }}
-          }
-        </p>
-      </div>
-
-      <!-- Location Accuracy Mode Option -->
-      <div class="form-group">
-        <label for="inline-locationAccuracy">{{ i18n.t('settings.locationAccuracy.label') }}</label>
-        <select id="inline-locationAccuracy" [(ngModel)]="locationAccuracyMode">
-          <option value="precise">{{ i18n.t('settings.locationAccuracy.precise') }}</option>
-          <option value="approximate">{{ i18n.t('settings.locationAccuracy.approximate') }}</option>
-        </select>
-        <p class="field-hint">
-          {{ i18n.t('settings.locationAccuracy.hintPrefix') }}
-          <strong>isApproximate = {{ locationAccuracyMode === 'approximate' }}</strong>.
-        </p>
-      </div>
-
-      <!-- Time Window Option -->
-      <div class="form-group">
-        <label for="inline-timeWindow">{{ i18n.t('settings.timeWindow.label') }}</label>
-        <select id="inline-timeWindow" [(ngModel)]="timeWindowDays">
-          <option [value]="7">{{ i18n.t('settings.timeWindow.option7') }}</option>
-          <option [value]="14">{{ i18n.t('settings.timeWindow.option14') }}</option>
-          <option [value]="30">{{ i18n.t('settings.timeWindow.option30') }}</option>
-          <option [value]="90">{{ i18n.t('settings.timeWindow.option90') }}</option>
-        </select>
-        <p class="field-hint">{{ i18n.t('settings.timeWindow.hint') }}</p>
-      </div>
-
-      <!-- Search Radius Option -->
-      <div class="form-group">
-        <label for="inline-searchRadius">
-          {{ i18n.t('settings.searchRadius.label', { radius: radiusKm }) }}
-        </label>
-        <input
-          type="range"
-          id="inline-searchRadius"
-          min="1"
-          max="50"
-          step="1"
-          [(ngModel)]="radiusKm"
-        />
-        <p class="field-hint">{{ i18n.t('settings.searchRadius.hint') }}</p>
-      </div>
-
-      <!-- Price Tolerance Option -->
-      <div class="form-group">
-        <label for="inline-tolerance">
-          {{ i18n.t('settings.tolerance.label', { tolerance: tolerancePercent }) }}
-        </label>
-        <input
-          type="range"
-          id="inline-tolerance"
-          min="1"
-          max="25"
-          step="1"
-          [(ngModel)]="tolerancePercent"
-        />
-        <p class="field-hint">
-          {{ i18n.t('settings.tolerance.hint', { tolerance: tolerancePercent }) }}
-        </p>
-      </div>
-
-      <!-- Backend API URL -->
-      @if (authService.isAdmin()) {
-        <div class="form-group">
-          <label for="inline-apiUrl">{{ i18n.t('settings.apiUrl.label') }}</label>
-          <input
-            type="text"
-            id="inline-apiUrl"
-            [(ngModel)]="backendApiUrl"
-            placeholder="http://localhost:5000/api/v1/prices"
-          />
-        </div>
-      }
+      <ng-container *ngTemplateOutlet="settingsFields; context: { prefix: 'inline-' }" />
     </div>
 
     <div class="settings-footer">
@@ -140,96 +178,7 @@
         </div>
 
         <div class="modal-body">
-          <!-- Language Option -->
-          <div class="form-group">
-            <label for="language">{{ i18n.t('settings.language.label') }}</label>
-            <select id="language" [(ngModel)]="language">
-              <option value="auto">{{ i18n.t('settings.language.auto') }}</option>
-              <option value="es-AR">{{ i18n.t('settings.language.esAr') }}</option>
-              <option value="en-US">{{ i18n.t('settings.language.enUs') }}</option>
-            </select>
-            <p class="field-hint">
-              @if (language === 'auto') {
-                {{ i18n.t('settings.language.hint.auto', { locale: detectedLocaleLabel() }) }}
-              } @else {
-                {{ i18n.t('settings.language.hint.manual') }}
-              }
-            </p>
-          </div>
-
-          <!-- Location Accuracy Mode Option -->
-          <div class="form-group">
-            <label for="locationAccuracy">{{ i18n.t('settings.locationAccuracy.label') }}</label>
-            <select id="locationAccuracy" [(ngModel)]="locationAccuracyMode">
-              <option value="precise">{{ i18n.t('settings.locationAccuracy.precise') }}</option>
-              <option value="approximate">
-                {{ i18n.t('settings.locationAccuracy.approximate') }}
-              </option>
-            </select>
-            <p class="field-hint">
-              {{ i18n.t('settings.locationAccuracy.hintPrefix') }}
-              <strong>isApproximate = {{ locationAccuracyMode === 'approximate' }}</strong>.
-            </p>
-          </div>
-
-          <!-- Time Window Option -->
-          <div class="form-group">
-            <label for="timeWindow">{{ i18n.t('settings.timeWindow.label') }}</label>
-            <select id="timeWindow" [(ngModel)]="timeWindowDays">
-              <option [value]="7">{{ i18n.t('settings.timeWindow.option7') }}</option>
-              <option [value]="14">{{ i18n.t('settings.timeWindow.option14') }}</option>
-              <option [value]="30">{{ i18n.t('settings.timeWindow.option30') }}</option>
-              <option [value]="90">{{ i18n.t('settings.timeWindow.option90') }}</option>
-            </select>
-            <p class="field-hint">{{ i18n.t('settings.timeWindow.hint') }}</p>
-          </div>
-
-          <!-- Search Radius Option -->
-          <div class="form-group">
-            <label for="searchRadius">
-              {{ i18n.t('settings.searchRadius.label', { radius: radiusKm }) }}
-            </label>
-            <input
-              type="range"
-              id="searchRadius"
-              min="1"
-              max="50"
-              step="1"
-              [(ngModel)]="radiusKm"
-            />
-            <p class="field-hint">{{ i18n.t('settings.searchRadius.hint') }}</p>
-          </div>
-
-          <!-- Price Tolerance Option -->
-          <div class="form-group">
-            <label for="tolerance">
-              {{ i18n.t('settings.tolerance.label', { tolerance: tolerancePercent }) }}
-            </label>
-            <input
-              type="range"
-              id="tolerance"
-              min="1"
-              max="25"
-              step="1"
-              [(ngModel)]="tolerancePercent"
-            />
-            <p class="field-hint">
-              {{ i18n.t('settings.tolerance.hint', { tolerance: tolerancePercent }) }}
-            </p>
-          </div>
-
-          <!-- Backend API URL -->
-          @if (authService.isAdmin()) {
-            <div class="form-group">
-              <label for="apiUrl">{{ i18n.t('settings.apiUrl.label') }}</label>
-              <input
-                type="text"
-                id="apiUrl"
-                [(ngModel)]="backendApiUrl"
-                placeholder="http://localhost:5000/api/v1/prices"
-              />
-            </div>
-          }
+          <ng-container *ngTemplateOutlet="settingsFields; context: { prefix: '' }" />
         </div>
 
         <div class="modal-footer">

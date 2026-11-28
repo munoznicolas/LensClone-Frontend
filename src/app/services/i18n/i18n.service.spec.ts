@@ -120,14 +120,14 @@ describe('I18nService', () => {
     const service = TestBed.inject(I18nService);
 
     service.setPreference('es-AR');
-    expect(service.t('settings.searchRadius.label', { radius: 15 })).toBe(
-      'Radio geográfico (km): 15 km',
+    expect(service.t('settings.searchRadius.label', { radius: '2.5 km' })).toBe(
+      'Radio geográfico: 2.5 km',
     );
     expect(service.t('lens.historyModal.detectedCount', { count: 0 })).toBe('0 detectados');
 
     service.setPreference('en-US');
-    expect(service.t('settings.searchRadius.label', { radius: 15 })).toBe(
-      'Geographic Radius (Km): 15 km',
+    expect(service.t('settings.searchRadius.label', { radius: '2.5 km' })).toBe(
+      'Geographic Radius: 2.5 km',
     );
 
     const enKeys = Object.keys(EN_US_TRANSLATIONS).sort();

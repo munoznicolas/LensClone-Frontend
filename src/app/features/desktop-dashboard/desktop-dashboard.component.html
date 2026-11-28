@@ -6,8 +6,7 @@
         <span class="material-symbols-rounded brand-icon">center_focus_strong</span>
       </div>
       <div class="brand-text">
-        <h1>{{ i18n.t('lens.title') }} <span class="badge">{{ i18n.t('dashboard.badge') }}</span></h1>
-        <p class="subtitle">{{ i18n.t('dashboard.subtitle') }}</p>
+        <h1>{{ i18n.t('lens.title') }}</h1>
       </div>
     </div>
 
@@ -58,25 +57,6 @@
 
     <!-- Header Right Action Tools & Profile Avatar -->
     <div class="header-actions">
-      <button
-        type="button"
-        class="location-badge-btn"
-        [class.precise]="locationService.accuracyMode() === 'precise'"
-        (click)="openLocationModal()"
-        [attr.title]="i18n.t('dashboard.gps.title')"
-      >
-        <span class="material-symbols-rounded">
-          {{ locationService.accuracyMode() === 'precise' ? 'target' : 'location_city' }}
-        </span>
-        <span>
-          {{
-            locationService.accuracyMode() === 'precise'
-              ? i18n.t('dashboard.gps.precise')
-              : i18n.t('dashboard.gps.approximate')
-          }}
-        </span>
-      </button>
-
       <button
         type="button"
         class="sim-btn"
@@ -148,9 +128,7 @@
       @case ('management') {
         <!-- Main Dashboard View: Leaflet Price Heatmap & Analytics -->
         <section class="management-grid">
-          <div class="card analytics-card">
-            <app-price-heatmap (requestLocation)="openLocationModal()" />
-          </div>
+          <app-price-heatmap (requestLocation)="openLocationModal()" />
         </section>
       }
 

@@ -378,7 +378,6 @@
             <p class="account-desc">{{ i18n.t('lens.accountModal.activeDesc') }}</p>
           } @else {
             <div class="anonymous-banner">
-              <span class="material-symbols-rounded anon-icon">no_accounts</span>
               <h3>{{ i18n.t('lens.accountModal.guestTitle') }}</h3>
               <p>{{ i18n.t('lens.accountModal.guestDesc') }}</p>
             </div>
@@ -407,25 +406,21 @@
           }
         </div>
 
-        <div class="modal-footer">
-          @if (authService.isAuthenticated()) {
+        @if (authService.isAuthenticated()) {
+          <div class="modal-footer">
             <button type="button" class="danger-btn" (click)="signOut()">
               <span class="material-symbols-rounded">logout</span>
               {{ i18n.t('lens.accountModal.signOutBtn') }}
             </button>
-          } @else {
-            <button type="button" class="secondary-btn" (click)="closeModal()">
-              {{ i18n.t('lens.accountModal.continueGuest') }}
-            </button>
-          }
-        </div>
+          </div>
+        }
       </div>
     }
 
     <!-- History Drawer / Modal -->
     @if (activeModal() === 'history') {
       <div
-        class="modal-sheet history-sheet"
+        class="modal-sheet dialog-sheet history-sheet"
         role="dialog"
         aria-modal="true"
         [attr.aria-label]="i18n.t('lens.historyModal.ariaLabel')"
@@ -620,7 +615,7 @@
     <!-- Shopping List & Budget Estimator Modal -->
     @if (activeModal() === 'shoppingList') {
       <div
-        class="modal-sheet shopping-list-modal-sheet"
+        class="modal-sheet dialog-sheet shopping-list-modal-sheet"
         role="dialog"
         aria-modal="true"
         [attr.aria-label]="i18n.t('lens.shoppingListModal.title')"

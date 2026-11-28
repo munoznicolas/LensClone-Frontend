@@ -6,11 +6,11 @@ export const ES_AR_TRANSLATIONS: Record<TranslationKey, string> = {
   'common.cancel': 'Cancelar',
 
   // Settings
-  'settings.inline.title': '⚙️ Configuración del sistema CartLeaf',
+  'settings.inline.title': 'Configuración del sistema CartLeaf',
   'settings.inline.subtitle':
     'Configurá el idioma, los parámetros de búsqueda, las ventanas de tiempo y los modos de precisión del GPS.',
   'settings.trigger.ariaLabel': 'Configuración de la app',
-  'settings.modal.title': '⚙️ Configuración de CartLeaf',
+  'settings.modal.title': 'Configuración de CartLeaf',
   'settings.modal.closeAriaLabel': 'Cerrar configuración',
   'settings.language.label': 'Idioma',
   'settings.language.auto': 'Automático (según el navegador)',
@@ -25,14 +25,14 @@ export const ES_AR_TRANSLATIONS: Record<TranslationKey, string> = {
   'settings.locationAccuracy.precise': 'Precisa (coordenadas GPS exactas sin redondear)',
   'settings.locationAccuracy.approximate': 'Aproximada (cuadrícula de ~1,1 km para privacidad)',
   'settings.locationAccuracy.hintPrefix': 'Marca: las coordenadas enviadas se etiquetarán con',
-  'settings.timeWindow.label': 'Ventana de tiempo histórica (días)',
+  'settings.timeWindow.label': 'Ventana de tiempo histórica',
   'settings.timeWindow.option7': '7 días',
   'settings.timeWindow.option14': '14 días',
   'settings.timeWindow.option30': '30 días',
   'settings.timeWindow.option90': '90 días',
   'settings.timeWindow.hint':
     'Compara los precios escaneados con registros dentro de este período reciente.',
-  'settings.searchRadius.label': 'Radio geográfico (km): {radius} km',
+  'settings.searchRadius.label': 'Radio geográfico: {radius}',
   'settings.searchRadius.hint':
     'Define el radio de búsqueda alrededor de tu ubicación actual para comparar precios.',
   'settings.tolerance.label': 'Tolerancia de calificación (%): ±{tolerance}%',
@@ -92,9 +92,9 @@ export const ES_AR_TRANSLATIONS: Record<TranslationKey, string> = {
   'lens.accountModal.signedInBadge': 'Sesión iniciada con Google (envío de precios habilitado)',
   'lens.accountModal.activeDesc':
     'Tu historial de capturas y configuración están activos para esta cuenta.',
-  'lens.accountModal.guestTitle': 'Usando Lens como invitado',
+  'lens.accountModal.guestTitle': 'Modo invitado',
   'lens.accountModal.guestDesc':
-    'Como invitado podés explorar y comparar precios en tiempo real. Iniciá sesión con Google para aportar precios nuevos al sistema.',
+    'Iniciá sesión con Google para aportar precios nuevos al sistema.',
   'lens.accountModal.signInBtn': 'Iniciar sesión con Google',
   'lens.accountModal.signOutBtn': 'Cerrar sesión',
   'lens.accountModal.continueGuest': 'Continuar como invitado',
@@ -210,7 +210,7 @@ export const ES_AR_TRANSLATIONS: Record<TranslationKey, string> = {
   'shoppingList.summary.itemsLabel': 'Productos y unidades',
   'shoppingList.summary.itemsValue': '{items} productos ({units} unidades)',
   'shoppingList.addForm.title': 'Agregar producto a la lista',
-  'shoppingList.addForm.nameLabel': 'Nombre del producto',
+  'shoppingList.addForm.nameLabel': 'Agregar producto',
   'shoppingList.addForm.namePlaceholder': 'Ej.: Leche, Huevos, Café...',
   'shoppingList.addForm.qtyLabel': 'Cant.',
   'shoppingList.addForm.priceLabel': 'Precio unitario ($)',

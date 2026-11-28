@@ -118,4 +118,32 @@ describe('SettingsComponent', () => {
     component.openModal();
     expect(component.language).toBe('en-US');
   });
+
+  it('should toggle location accuracy mode and snap time window slider to presets', async () => {
+    fixture.componentRef.setInput('inline', true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const el = fixture.nativeElement as HTMLElement;
+    const radioButtons = el.querySelectorAll('#inline-locationAccuracy [role="radio"]');
+    expect(radioButtons.length).toBe(2);
+
+    (radioButtons[0] as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(component.locationAccuracyMode).toBe('precise');
+
+    const slider = el.querySelector('#inline-timeWindow') as HTMLInputElement;
+    expect(slider.type).toBe('range');
+    slider.value = '2';
+    slider.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(component.timeWindowDays).toBe(30);
+
+    const radiusSlider = el.querySelector('#inline-searchRadius') as HTMLInputElement;
+    expect(radiusSlider.type).toBe('range');
+    radiusSlider.value = '0';
+    radiusSlider.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(component.radiusKm).toBe(0.5);
+  });
 });

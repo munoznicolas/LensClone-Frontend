@@ -31,7 +31,6 @@ describe('ShoppingListComponent', () => {
   it('should add item from form inputs', () => {
     component.newItemName.set('Bananas');
     component.newItemQty.set(2);
-    component.newItemPrice.set(1.50);
 
     component.addItem();
 
@@ -39,6 +38,5 @@ describe('ShoppingListComponent', () => {
     const added = service.items().find((i) => i.name === 'Bananas');
     expect(added).toBeTruthy();
     expect(added?.quantity).toBe(2);
-    expect(added?.manualUnitPrice).toBe(1.50);
   });
 });
